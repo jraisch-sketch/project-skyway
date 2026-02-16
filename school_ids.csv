@@ -1,0 +1,254 @@
+id,school_name
+1,King University
+2,Liberty University
+3,American University
+4,Appalachian State University
+5,College of William and Mary
+6,Duke University
+7,George Mason University
+8,Georgetown University
+9,James Madison University
+10,Johns Hopkins University
+11,Montgomery College
+12,Mount St. Mary's University
+13,North Carolina State University at Raleigh
+14,Oklahoma State University
+15,Roanoke College
+16,Saint Augustines University
+17,University of Maryland-Baltimore County
+18,University of Maryland-College Park
+19,University of North Carolina at Chapel Hill
+20,University of Virginia
+21,US Naval Academy
+22,Virginia Commonwealth University
+23,Virginia Polytechnic University
+24,Wake Forest University
+25,West Virginia University
+26,Colorado Mesa University
+27,Fort Lewis College
+28,Western Colorado University
+29,Adams State University
+30,Colorado Christian University
+31,Colorado College
+32,Colorado Mountain College
+33,Colorado School of Mines
+34,Colorado State University
+35,Pikes Peak Community College
+36,Regis University
+37,University of Colorado Boulder
+38,University of Colorado Colorado Springs
+39,University of Colorado Denver
+40,University of Denver
+41,University of Northern Colorado
+42,University of Wyoming
+43,US Air Force Academy
+44,Arizona State University
+45,Embry Riddle Aeronautical University-Prescott
+46,Institute of American Indian Arts
+47,Navajo Technical University
+48,New Mexico State University
+49,Northern Arizona University
+50,Ottawa University-Phoenix
+51,Prescott College
+52,University of Arizona
+53,University of New Mexico
+54,Belmont Abbey College
+55,Brevard College
+56,Lees-McRae College
+57,Milligan University
+58,Piedmont University
+59,Savannah College of Art and Design - Atlanta
+60,Savannah College of Art and Design - Savannah
+61,Truett McConnell University
+62,University of Montevallo
+63,Warren Wilson College
+64,Auburn University
+65,Belhaven University
+66,Clemson University
+67,Clinton College
+68,East Tennessee State University
+69,Embry Riddle Aeronautical University-Daytona Beach
+70,Emory University
+71,Florida State University
+72,Furman University
+73,Gamecock Cycling - USC
+74,Georgia Highlands College
+75,Georgia Institute of Technology
+76,Georgia Southern University
+77,Georgia State University
+78,Kennesaw State University
+79,Lindsey Wilson College
+80,Mars Hill University
+81,Sewanee-The University of the South
+82,Stetson University
+83,The University of Tennessee
+84,The University of Tennessee at Chattanooga
+85,Tulane University of Louisiana
+86,Union College-KY
+87,University of Alabama-Huntsville
+88,University of Central Florida
+89,University of Florida
+90,University of Georgia
+91,University of Mississippi
+92,University of North Georgia
+93,University of South Florida
+94,Western Carolina University
+95,Lindenwood University
+96,Marian University
+97,Ball State University
+98,Butler University
+99,Calvin College
+100,Case Western Reserve University
+101,DePaul University
+102,DePauw University
+103,Hillsdale College
+104,Indiana University-Bloomington
+105,Lawrence University
+106,Miami University-Oxford
+107,Michigan State University
+108,Michigan Technological University
+109,Missouri University of Science and Technology
+110,North Park University
+111,Northern Michigan University
+112,Northwestern University
+113,Oberlin College
+114,Ohio State University
+115,Purdue University
+116,Ripon College
+117,Saint Louis University
+118,Southern Illinois University Carbondale
+119,Southern Illinois University Edwardsville
+120,The College of Wooster
+121,University of Chicago
+122,University of Cincinnati
+123,University of Illinois at Urbana-Champaign
+124,University of Louisville
+125,University of Michigan-Ann Arbor
+126,University of Missouri-Columbia
+127,University of Notre Dame
+128,University of Wisconsin-Madison
+129,University of Wisconsin-Platteville
+130,University of Wisconsin-Stevens Point
+131,University of Wisconsin-Whitewater
+132,Washington University in St Louis
+133,Western Illinois University
+134,Western Michigan University
+135,Wright State University
+136,Bard College
+137,Bates College
+138,Boston College
+139,Boston University
+140,Bowdoin College
+141,Brandeis University
+142,Brown University
+143,Bucknell University
+144,Carnegie Mellon University
+145,Castleton University
+146,Clarkson University
+147,Colby College
+148,Columbia University-NYC
+149,Cornell University
+150,Dartmouth College
+151,Drexel University
+152,Hamilton College
+153,Harvard University
+154,IIndiana University of Pennsylvania
+155,Juniata College
+156,Lafayette College
+157,Lehigh University
+158,Marlboro College
+159,Marywood University
+160,Massachusetts College of Liberal Arts
+161,Massachusetts Institute of Technology
+162,Middlebury College
+163,New York University
+164,Northeastern University
+165,Penn State Behrend
+166,Penn State-Lehigh Valley
+167,Pennsylvania State University
+168,Plymouth State University
+169,Princeton University
+170,Rensselaer Polytechnic Institute
+171,Rhode Island School of Design
+172,Rochester Institute of Technology
+173,Rutgers University-New Brunswick
+174,Saint Lawrence University
+175,Saint Michaels College
+176,Shippensburg University of Pennsylvania
+177,Smith College
+178,Suny Maritime College
+179,Swarthmore College
+180,Syracuse University
+181,Temple University
+182,Tufts University
+183,Union College-NY
+184,United States Coast Guard Academy
+185,University of Connecticut
+186,University of Delaware
+187,University of Maine-Orono
+188,University of Massachusetts Amherst
+189,University of New Hampshire
+190,University of Pennsylvania
+191,University of Pittsburgh
+192,University of Rhode Island
+193,University of Rochester
+194,University of Vermont
+195,US Military Academy
+196,Vermont Technical College
+197,Williams College
+198,Worcester Polytechnic Institute
+199,Yale University
+200,Westminster College
+201,Rocky Mountain University of Health Professionals
+202,University of Utah
+203,Utah State University
+204,Utah Valley University
+205,Weber State University
+206,Lake Superior College
+207,Iowa State University
+208,Minnesota State College Southeast - Red Wing
+209,University of Iowa
+210,University of Kansas
+211,University of Minnesota-Duluth
+212,University of Minnesota-Twin Cities
+213,University of Nebraska-Lincoln
+214,Southern Oregon University
+215,Blue Mt. Community College
+216,Boise State University
+217,Central Washington University
+218,Eastern Washington University
+219,Idaho State University
+220,Lewis & Clark College
+221,Montana State University
+222,Oregon State University
+223,Portland State University
+224,Seattle University
+225,The University of Montana
+226,University of British Columbia
+227,University of Idaho
+228,University of Oregon
+229,University of Puget Sound
+230,University of Washington-Seattle
+231,Warner Pacific University
+232,Washington State University
+233,Western Washington University
+234,Whitman College
+235,Midwestern State University
+236,Abilene Christian University
+237,Baylor University
+238,Louisiana State University
+239,Lyon College
+240,Nicholls State University
+241,Rice University
+242,Schreiner University
+243,Texas A & M University
+244,Texas State University-San Marcos
+245,Texas Tech University
+246,The University of Texas at Austin
+247,The University of Texas at Dallas
+248,University of Arkansas
+249,University of Louisiana-Lafayette
+250,University of North Texas
+251,University of Oklahoma
+252,University of Texas at Arlington
+253,University of Texas-San Antonio
