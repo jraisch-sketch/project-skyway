@@ -1,0 +1,26 @@
+status,nces_unitid,school_id,school_name,details
+updated,220516,1,King University,"enrollment,acceptance_rate,graduation_rate"
+updated,232557,2,Liberty University,"enrollment,acceptance_rate,graduation_rate"
+skipped,18409201,3,American University,
+updated,197869,4,Appalachian State University,"enrollment,acceptance_rate,graduation_rate"
+updated,231624,5,College of William and Mary,"enrollment,acceptance_rate,graduation_rate"
+updated,198419,6,Duke University,"enrollment,acceptance_rate,graduation_rate"
+updated,232186,7,George Mason University,"enrollment,acceptance_rate,graduation_rate"
+updated,156745,8,Georgetown University,"enrollment,acceptance_rate,graduation_rate"
+updated,232423,9,James Madison University,"enrollment,acceptance_rate,graduation_rate"
+updated,162928,10,Johns Hopkins University,"enrollment,acceptance_rate,graduation_rate"
+updated,199023,11,Montgomery College,enrollment
+updated,163462,12,Mount St. Mary's University,"enrollment,acceptance_rate,graduation_rate"
+failed,199193,13,North Carolina State University at Raleigh,Failed to fetch College Scorecard record for UNITID=199193: HTTP Error 429: Too Many Requests
+failed,233426,15,Roanoke College,Failed to fetch College Scorecard record for UNITID=233426: HTTP Error 429: Too Many Requests
+failed,199582,16,Saint Augustines University,Failed to fetch College Scorecard record for UNITID=199582: HTTP Error 429: Too Many Requests
+failed,434672,17,University of Maryland-Baltimore County,Failed to fetch College Scorecard record for UNITID=434672: HTTP Error 429: Too Many Requests
+failed,163295,18,University of Maryland-College Park,Failed to fetch College Scorecard record for UNITID=163295: HTTP Error 429: Too Many Requests
+failed,199120,19,University of North Carolina at Chapel Hill,Failed to fetch College Scorecard record for UNITID=199120: HTTP Error 429: Too Many Requests
+failed,234155,20,University of Virginia,Failed to fetch College Scorecard record for UNITID=234155: HTTP Error 429: Too Many Requests
+failed,234030,22,Virginia Commonwealth University,Failed to fetch College Scorecard record for UNITID=234030: HTTP Error 429: Too Many Requests
+failed,233921,23,Virginia Polytechnic University,Failed to fetch College Scorecard record for UNITID=233921: HTTP Error 429: Too Many Requests
+failed,199847,24,Wake Forest University,Failed to fetch College Scorecard record for UNITID=199847: HTTP Error 429: Too Many Requests
+failed,238032,25,West Virginia University,Failed to fetch College Scorecard record for UNITID=238032: HTTP Error 429: Too Many Requests
+failed,443632,26,Colorado Mesa University,Failed to fetch College Scorecard record for UNITID=443632: HTTP Error 429: Too Many Requests
+failed,127185,27,Fort Lewis College,Failed to fetch College Scorecard record for UNITID=127185: HTTP Error 429: Too Many Requests

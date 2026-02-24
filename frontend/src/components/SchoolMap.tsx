@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { Circle, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { useEffect, useMemo, useRef } from 'react';
+import { Circle, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import Link from 'next/link';
 
 import { colorForConference, CONFERENCE_COLORS } from '@/lib/conferenceColors';
 import type { School } from '@/lib/types';
@@ -17,6 +16,11 @@ const userMarkerIcon = L.icon({
 });
 
 const markerCache = new Map<string, L.Icon>();
+type MappableSchool = {
+  school: School;
+  lat: number;
+  lng: number;
+};
 
 function conferenceMarkerIcon(color: string): L.Icon {
   if (markerCache.has(color)) {
@@ -46,6 +50,11 @@ type SchoolMapProps = {
   radiusMiles?: number | null;
   popupSchoolId?: number | null;
   popupRequestId?: number;
+  mapHeight?: number | string;
+  onRequestSchoolDetail?: (schoolId: number) => void;
+  onUseMyLocation?: () => void;
+  onToggleMaximize?: () => void;
+  isMaximized?: boolean;
 };
 
 function FitMapToResults({
@@ -56,6 +65,7 @@ function FitMapToResults({
   includeUser: [number, number] | null;
 }) {
   const map = useMap();
+  const initialFitDoneRef = useRef(false);
 
   useEffect(() => {
     const boundsPoints = includeUser ? [...points, includeUser] : points;
@@ -66,6 +76,19 @@ function FitMapToResults({
       map.setView(boundsPoints[0], 9, { animate: false });
       return;
     }
+
+    if (!initialFitDoneRef.current) {
+      // On first load, bias the fitted view slightly east so USA land mass is centered better.
+      map.fitBounds(boundsPoints, {
+        paddingTopLeft: [210, 28],
+        paddingBottomRight: [20, 28],
+        maxZoom: 9,
+        animate: false,
+      });
+      initialFitDoneRef.current = true;
+      return;
+    }
+
     map.fitBounds(boundsPoints, { padding: [28, 28], maxZoom: 9, animate: false });
   }, [map, points, includeUser]);
 
@@ -110,30 +133,54 @@ export default function SchoolMap({
   radiusMiles = null,
   popupSchoolId = null,
   popupRequestId = 0,
+  mapHeight = 500,
+  onRequestSchoolDetail,
+  onUseMyLocation,
+  onToggleMaximize,
+  isMaximized = false,
 }: SchoolMapProps) {
   const markerRefs = useRef<Record<number, L.Marker>>({});
-  const schoolPoints = schools
-    .filter((school) => school.latitude !== null && school.longitude !== null)
-    .map((school) => [school.latitude as number, school.longitude as number] as [number, number]);
+  const mappableSchools = useMemo(
+    () =>
+      schools
+        .map((school) => {
+          if (school.latitude === null || school.longitude === null) {
+            return null;
+          }
+          const lat = Number(school.latitude);
+          const lng = Number(school.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            return null;
+          }
+          if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            return null;
+          }
+          return { school, lat, lng } as MappableSchool;
+        })
+        .filter((entry): entry is MappableSchool => entry !== null),
+    [schools]
+  );
+  const schoolPoints = useMemo(
+    () => mappableSchools.map((entry) => [entry.lat, entry.lng] as [number, number]),
+    [mappableSchools]
+  );
 
   const visibleConferences = Array.from(
     new Set(schools.map((school) => school.conference).filter((conference) => Boolean(conference)))
   ).sort();
 
-  const centeredSchool = schools.find(
-    (school) => school.latitude !== null && school.longitude !== null
-  );
   const center: [number, number] = userLocation
     ? userLocation
-    : centeredSchool
-      ? [centeredSchool.latitude as number, centeredSchool.longitude as number]
+    : mappableSchools.length > 0
+      ? [mappableSchools[0].lat, mappableSchools[0].lng]
       : [41.2, -98.5];
   const zoom = userLocation ? 8 : 3;
   const mapKey = `${center[0]}-${center[1]}-${zoom}`;
 
   return (
     <div className='map-wrap'>
-      <MapContainer key={mapKey} center={center} zoom={zoom} scrollWheelZoom style={{ height: 500, width: '100%' }}>
+      <MapContainer key={mapKey} center={center} zoom={zoom} scrollWheelZoom zoomControl={false} style={{ height: mapHeight, width: '100%' }}>
+        <ZoomControl position='bottomright' />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -163,36 +210,65 @@ export default function SchoolMap({
             markerRefs={markerRefs}
           />
         )}
-        {schools
-          .filter((school) => school.latitude !== null && school.longitude !== null)
-          .map((school) => (
-            <Marker
-              key={school.id}
-              position={[school.latitude as number, school.longitude as number]}
-              icon={conferenceMarkerIcon(colorForConference(school.conference))}
-              ref={(marker) => {
-                if (marker) {
-                  markerRefs.current[school.id] = marker;
-                } else {
-                  delete markerRefs.current[school.id];
-                }
-              }}
-            >
-              <Popup>
+        {mappableSchools.map(({ school, lat, lng }) => (
+          <Marker
+            key={`school-${school.id}`}
+            position={[lat, lng]}
+            icon={conferenceMarkerIcon(colorForConference(school.conference))}
+            ref={(leafletMarker) => {
+              if (leafletMarker) {
+                markerRefs.current[school.id] = leafletMarker;
+              } else {
+                delete markerRefs.current[school.id];
+              }
+            }}
+          >
+            <Popup>
               <strong>{school.name}</strong>
               <br />
               Team Type: {school.team_type || 'N/A'}
               <br />
               Conference: {school.conference || 'N/A'}
               <br />
-              <Link href={`/schools/${school.id}`}>View details</Link>
+              <button
+                type='button'
+                className='list-card-link'
+                onClick={() => onRequestSchoolDetail?.(school.id)}
+              >
+                View details
+              </button>
             </Popup>
           </Marker>
-          ))}
+        ))}
       </MapContainer>
+      {onUseMyLocation && (
+        <button
+          type='button'
+          className='map-locate-control'
+          onClick={onUseMyLocation}
+          title='Use My Location'
+          aria-label='Use My Location'
+        >
+          <svg viewBox='0 0 24 24' aria-hidden='true'>
+            <circle cx='12' cy='12' r='4.2' />
+            <path d='M12 2v4M12 18v4M2 12h4M18 12h4' />
+          </svg>
+        </button>
+      )}
+      {onToggleMaximize && (
+        <button
+          type='button'
+          className='map-maximize-control'
+          onClick={onToggleMaximize}
+          title={isMaximized ? 'Minimize Map' : 'Maximize Map'}
+          aria-label={isMaximized ? 'Minimize Map' : 'Maximize Map'}
+        >
+          {isMaximized ? '−' : '+'}
+        </button>
+      )}
       {visibleConferences.length > 0 && (
         <div className='conference-legend'>
-          <strong>Conference Colors</strong>
+          <strong>USAC Conference Colors</strong>
           {visibleConferences.map((conference) => (
             <div key={conference} className='legend-item'>
               <span

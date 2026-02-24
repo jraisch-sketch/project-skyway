@@ -1,0 +1,4 @@
+week_start,domain,dataset,metric_name,metric_definition,target_value,current_value,trend_vs_last_week,status,owner,notes
+2026-02-23,schools,Project Skyway Schools,completeness_nces_unitid,Percent of active schools with non-empty nces_unitid,95,62,down,red,data_ops_lead,Prioritize conference cohorts with highest traffic first
+2026-02-23,schools,Project Skyway Schools,freshness_geocode_30d,Percent of schools with geocode updated within 30 days,90,72,flat,amber,geo_ops,Run forced refresh for rows changed in last 12 months
+2026-02-23,schools,Project Skyway Schools,validity_contact_email,Percent of contact_email values passing format and domain checks,98,91,up,amber,data_quality,Suppress obviously invalid placeholders and re-source

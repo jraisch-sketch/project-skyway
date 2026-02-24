@@ -1,12 +1,17 @@
-from django.db.models import Case, FloatField, IntegerField, Q, Value, When
+from django.db.models import Case, Count, FloatField, IntegerField, Q, Value, When
 from django.db.models.functions import ACos, Cast, Cos, Radians, Sin
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import FavoriteSchool, School
+from .models import Conference, FavoriteSchool, School
 from .permissions import FavoritesPermission
-from .serializers import FavoriteSchoolSerializer, SchoolDetailSerializer, SchoolListSerializer
+from .serializers import (
+    ConferenceSerializer,
+    FavoriteSchoolSerializer,
+    SchoolDetailSerializer,
+    SchoolListSerializer,
+)
 
 
 DISCIPLINE_FIELD_MAP = {
@@ -138,3 +143,10 @@ def filter_options(request):
             'sort_options': ['relevance', 'distance', 'alphabetical'],
         }
     )
+
+
+@api_view(['GET'])
+def conferences_list(request):
+    conferences = Conference.objects.annotate(team_count=Count('schools')).order_by('name')
+    serializer = ConferenceSerializer(conferences, many=True)
+    return Response(serializer.data)

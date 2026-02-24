@@ -1,4 +1,5 @@
 import os
+from importlib.util import find_spec
 from datetime import timedelta
 from pathlib import Path
 
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.accounts',
+    'apps.cms',
     'apps.schools',
 ]
 
@@ -37,6 +39,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if find_spec('whitenoise') is not None:
+    MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'config.urls'
 
@@ -85,6 +90,13 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+staticfiles_backend = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+if find_spec('whitenoise') is not None:
+    staticfiles_backend = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': staticfiles_backend},
+}
 
 USE_S3 = os.getenv('USE_S3', 'False').lower() == 'true'
 if USE_S3:
@@ -117,7 +129,9 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [u.strip() for u in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',') if u.strip()]
+CSRF_TRUSTED_ORIGINS = [u.strip() for u in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',') if u.strip()]
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@projectskyway.org')
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000,http://127.0.0.1:3000')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

@@ -1,0 +1,54 @@
+row_number,school_id,school_name_csv,school_name_db,incoming_nces_unitid,status,message
+2,14,Oklahoma State University,Oklahoma State University,207388,updated,nces_unitid set
+3,21,US Naval Academy,US Naval Academy,164155,updated,nces_unitid set
+4,31,Colorado College,Colorado College,126678,updated,nces_unitid set
+5,39,University of Colorado Denver,University of Colorado Denver,126562,updated,nces_unitid set
+6,43,US Air Force Academy,US Air Force Academy,128328,updated,nces_unitid set
+7,44,Arizona State University,Arizona State University,104151,updated,nces_unitid set
+8,46,Institute of American Indian Arts,Institute of American Indian Arts,187745,updated,nces_unitid set
+9,48,New Mexico State University,New Mexico State University,188030,updated,nces_unitid set
+10,52,University of Arizona,University of Arizona,104179,updated,nces_unitid set
+11,53,University of New Mexico,University of New Mexico,187985,updated,nces_unitid set
+12,59,Savannah College of Art and Design - Atlanta,Savannah College of Art and Design - Atlanta,140951,updated,nces_unitid set
+13,60,Savannah College of Art and Design - Savannah,Savannah College of Art and Design - Savannah,140951,updated,nces_unitid set
+14,71,Florida State University,Florida State University,134097,updated,nces_unitid set
+15,73,Gamecock Cycling - USC,Gamecock Cycling - USC,218663,updated,nces_unitid set
+16,75,Georgia Institute of Technology,Georgia Institute of Technology,139755,updated,nces_unitid set
+17,77,Georgia State University,Georgia State University,139940,updated,nces_unitid set
+18,81,Sewanee-The University of the South,Sewanee-The University of the South,221519,updated,nces_unitid set
+19,86,Union College-KY,Union College-KY,157863,updated,nces_unitid set
+20,89,University of Florida,University of Florida,134130,updated,nces_unitid set
+21,90,University of Georgia,University of Georgia,139959,updated,nces_unitid set
+22,114,Ohio State University,Ohio State University,204796,updated,nces_unitid set
+23,115,Purdue University,Purdue University,243780,updated,nces_unitid set
+24,122,University of Cincinnati,University of Cincinnati,201885,updated,nces_unitid set
+25,138,Boston College,Boston College,164924,updated,nces_unitid set
+26,139,Boston University,Boston University,164988,updated,nces_unitid set
+27,148,Columbia University-NYC,Columbia University-NYC,190150,updated,nces_unitid set
+28,154,IIndiana University of Pennsylvania,IIndiana University of Pennsylvania,213020,updated,nces_unitid set
+29,158,Marlboro College,Marlboro College,230940,updated,nces_unitid set
+30,165,Penn State Behrend,Penn State Behrend,214591,updated,nces_unitid set
+31,166,Penn State-Lehigh Valley,Penn State-Lehigh Valley,214670,updated,nces_unitid set
+32,167,Pennsylvania State University,Pennsylvania State University,214777,updated,nces_unitid set
+33,174,Saint Lawrence University,Saint Lawrence University,195216,updated,nces_unitid set
+34,183,Union College-NY,Union College-NY,196866,updated,nces_unitid set
+35,187,University of Maine-Orono,University of Maine-Orono,161253,updated,nces_unitid set
+36,189,University of New Hampshire,University of New Hampshire,183044,updated,nces_unitid set
+37,190,University of Pennsylvania,University of Pennsylvania,215062,updated,nces_unitid set
+38,195,US Military Academy,US Military Academy,197036,updated,nces_unitid set
+39,203,Utah State University,Utah State University,230728,updated,nces_unitid set
+40,207,Iowa State University,Iowa State University,153603,updated,nces_unitid set
+41,208,Minnesota State College Southeast - Red Wing,Minnesota State College Southeast - Red Wing,175263,updated,nces_unitid set
+42,209,University of Iowa,University of Iowa,153658,updated,nces_unitid set
+43,215,Blue Mt. Community College,Blue Mt. Community College,208275,updated,nces_unitid set
+44,219,Idaho State University,Idaho State University,142276,updated,nces_unitid set
+45,221,Montana State University,Montana State University,180461,updated,nces_unitid set
+46,222,Oregon State University,Oregon State University,209542,updated,nces_unitid set
+47,225,The University of Montana,The University of Montana,180489,updated,nces_unitid set
+48,226,University of British Columbia,University of British Columbia,,skipped,missing incoming nces id
+49,227,University of Idaho,University of Idaho,142285,updated,nces_unitid set
+50,228,University of Oregon,University of Oregon,209551,updated,nces_unitid set
+51,238,Louisiana State University,Louisiana State University,159391,updated,nces_unitid set
+52,243,Texas A & M University,Texas A & M University,228723,updated,nces_unitid set
+53,244,Texas State University-San Marcos,Texas State University-San Marcos,228459,updated,nces_unitid set
+54,251,University of Oklahoma,University of Oklahoma,207500,updated,nces_unitid set

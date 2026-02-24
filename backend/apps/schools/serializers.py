@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from .models import FavoriteSchool, School
+from .models import Conference, FavoriteSchool, School
+
+
+class ConferenceSerializer(serializers.ModelSerializer):
+    team_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Conference
+        fields = ('id', 'name', 'long_name', 'acronym', 'description', 'team_count')
 
 
 class SchoolListSerializer(serializers.ModelSerializer):
@@ -68,6 +76,9 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
             'nces_unitid',
             'nces_name',
             'nces_schoolyear',
+            'institution_control',
+            'institution_level',
+            'locale',
             'logo',
             'road',
             'mtb_xc',

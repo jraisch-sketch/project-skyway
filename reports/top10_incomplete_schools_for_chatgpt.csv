@@ -1,0 +1,11 @@
+SCHOOL NAME,NCES_UNITID,Team Type,State,City,School address line 1,School zip code,CONFERENCE,School website,Athletic dept website,Cycling website,CONTACT EMAIL,Head coach name,Road,MTB XC,MTB ST,MTB Enduro,MTB Downhill,MTB Slalom,Cyclocross,incompleteness_score,missing_fields_before
+Idaho State University,,Club,,,,,Northwest,,,,,,No,No,No,No,No,No,No,20,nces_unitid;state;city;street_address;zip_code;school_website;contact_email;athletic_dept_website;cycling_website;head_coach
+Penn State Behrend,,Club,,,,,Eastern,,,,,,No,No,No,No,No,No,No,20,nces_unitid;state;city;street_address;zip_code;school_website;contact_email;athletic_dept_website;cycling_website;head_coach
+Arizona State University,,Club,,,,,Southwest,,,,ckhashim@asu.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Blue Mt. Community College,,Club,,,,,Northwest,,,,ashick@bluecc.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Boston College,,Club,,,,,Eastern,,,,charnowe@bc.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Boston University,,Club,,,,,Eastern,,,,bike@bu.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Colorado College,,Club,,,,,Rocky Mountain,,,,cstarr@coloradocollege.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Colorado State University,,Club,,,,,Rocky Mountain,,,,csuramscycling@gmail.com,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Columbia University-NYC,,Club,,,,,Eastern,,,,bj2149@columbia.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach
+Florida State University,,Club,,,,,Southeast,,,,cobando@fsu.edu,,No,No,No,No,No,No,No,18,nces_unitid;state;city;street_address;zip_code;school_website;athletic_dept_website;cycling_website;head_coach

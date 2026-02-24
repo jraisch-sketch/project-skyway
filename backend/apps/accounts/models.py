@@ -5,6 +5,7 @@ from django.db import models
 class User(AbstractUser):
     class Role(models.TextChoices):
         STUDENT = 'student', 'Student'
+        PARENT = 'parent', 'Parent'
         ADMIN = 'admin', 'Admin'
 
     email = models.EmailField(unique=True)

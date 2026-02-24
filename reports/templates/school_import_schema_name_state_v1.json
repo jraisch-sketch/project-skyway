@@ -1,0 +1,40 @@
+{
+  "target_model": "schools.School",
+  "mapping": {
+    "SCHOOL NAME": "name",
+    "NCES_UNITID": "nces_unitid",
+    "Team Type": "team_type",
+    "State": "state",
+    "City": "city",
+    "School address line 1": "street_address",
+    "School zip code": "zip_code",
+    "CONFERENCE": "conference",
+    "School website": "school_website",
+    "Athletic dept website": "athletic_dept_website",
+    "Cycling website": "cycling_website",
+    "CONTACT EMAIL": "contact_email",
+    "Head coach name": "head_coach",
+    "Road": "road",
+    "MTB XC": "mtb_xc",
+    "MTB ST": "mtb_st",
+    "MTB Enduro": "mtb_enduro",
+    "MTB Downhill": "mtb_downhill",
+    "MTB Slalom": "mtb_slalom",
+    "Cyclocross": "cyclocross"
+  },
+  "unique_key_fields": ["name", "state"],
+  "required_fields": ["name", "state"],
+  "defaults": {
+    "cycling_program_status": "active"
+  },
+  "type_rules": {
+    "team_type": "string",
+    "road": "bool",
+    "mtb_xc": "bool",
+    "mtb_st": "bool",
+    "mtb_enduro": "bool",
+    "mtb_downhill": "bool",
+    "mtb_slalom": "bool",
+    "cyclocross": "bool"
+  }
+}

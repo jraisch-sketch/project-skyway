@@ -12,6 +12,7 @@ NCES_LAYER_URL = (
 )
 
 _USER_AGENT = 'ProjectSkywayNCESImporter/1.0 (admin@projectskyway.org)'
+NCES_DEFAULT_OUT_FIELDS = 'UNITID,NAME,STREET,CITY,STATE,ZIP,LAT,LON,SCHOOLYEAR'
 
 _STOPWORDS = {
     'the',
@@ -49,14 +50,14 @@ def fetch_nces_records(
     page_size: int = 1000,
     sleep_seconds: float = 0.2,
     max_retries: int = 3,
+    out_fields: str = NCES_DEFAULT_OUT_FIELDS,
 ) -> Iterator[Dict]:
-    fields = 'UNITID,NAME,STREET,CITY,STATE,ZIP,LAT,LON,SCHOOLYEAR'
     offset = 0
 
     while True:
         params = {
             'where': '1=1',
-            'outFields': fields,
+            'outFields': out_fields,
             'returnGeometry': 'false',
             'f': 'json',
             'resultOffset': str(offset),
@@ -93,6 +94,32 @@ def fetch_nces_records(
             break
         if sleep_seconds > 0:
             time.sleep(sleep_seconds)
+
+
+def fetch_nces_layer_fields(
+    base_url: str = NCES_LAYER_URL,
+    max_retries: int = 3,
+) -> List[Dict]:
+    params = {'f': 'json'}
+    url = f'{base_url}?{urllib.parse.urlencode(params)}'
+
+    payload = None
+    last_error = None
+    for _ in range(max_retries):
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': _USER_AGENT})
+            with urllib.request.urlopen(req, timeout=45) as response:
+                payload = json.loads(response.read().decode('utf-8'))
+            break
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+            time.sleep(1.0)
+
+    if payload is None:
+        raise RuntimeError(f'Failed to fetch NCES layer metadata: {last_error}')
+
+    fields = payload.get('fields', []) or []
+    return fields
 
 
 def clean_state(value: str) -> str:

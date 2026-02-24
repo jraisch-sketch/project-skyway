@@ -10,10 +10,11 @@ from .models import User
 from .serializers import (
     ConfirmPasswordResetSerializer,
     LoginSerializer,
+    MeSerializer,
     RegisterSerializer,
     RequestPasswordResetSerializer,
 )
-from .utils import send_password_reset_email, send_verification_email
+from .utils import send_password_reset_email
 
 
 class RegisterView(APIView):
@@ -22,9 +23,8 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        send_verification_email(user)
-        return Response({'detail': 'Account created. Check your email to verify your account.'}, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response({'detail': 'Account created successfully. You can log in now.'}, status=status.HTTP_201_CREATED)
 
 
 class VerifyEmailView(APIView):
@@ -65,11 +65,9 @@ class LoginView(APIView):
                 'user': {
                     'id': user.id,
                     'email': user.email,
-                    'username': user.username,
-                    'role': user.role,
+                    'full_name': user.get_full_name().strip() or user.username,
+                    'account_type': user.role,
                     'grad_year': user.grad_year,
-                    'location': user.location,
-                    'cycling_discipline': user.cycling_discipline,
                 },
             },
             status=status.HTTP_200_OK,
@@ -111,3 +109,11 @@ class ConfirmPasswordResetView(APIView):
         user.set_password(new_password)
         user.save(update_fields=['password'])
         return Response({'detail': 'Password reset successful.'}, status=status.HTTP_200_OK)
+
+
+class MeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = MeSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

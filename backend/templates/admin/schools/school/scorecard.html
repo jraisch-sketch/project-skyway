@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>School Data Health Scorecard</h1>
+  <p><strong>Total schools:</strong> {{ total_schools }}</p>
+  <p>
+    <a href="{{ school_changelist_url }}">Open full School list</a>
+  </p>
+
+  <table class="admin-scorecard-table" style="width:100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Metric</th>
+        <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">Count</th>
+        <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">Percent</th>
+        <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Description</th>
+        <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in stats %}
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #eee;">{{ row.label }}</td>
+          <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">{{ row.count }}</td>
+          <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">{{ row.pct }}%</td>
+          <td style="padding:8px; border-bottom:1px solid #eee;">{{ row.description }}</td>
+          <td style="padding:8px; border-bottom:1px solid #eee;">
+            <a href="{{ row.href }}">Open filtered schools</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>Upload Data + Run Loader</h1>
+  <p>Choose an existing schema or upload a JSON schema, then upload a CSV file to dry-run or commit.</p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="default">Run</button>
+  </form>
+{% endblock %}
