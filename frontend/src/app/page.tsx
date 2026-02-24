@@ -309,6 +309,19 @@ export default function HomePage() {
     return schools.filter((school) => idSet.has(school.id));
   }, [schools, favoritesOnly, favoriteSchoolIds]);
 
+  const mapPinCount = useMemo(
+    () =>
+      mapSchools.filter((school) => {
+        if (school.latitude === null || school.longitude === null) {
+          return false;
+        }
+        const lat = Number(school.latitude);
+        const lng = Number(school.longitude);
+        return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      }).length,
+    [mapSchools]
+  );
+
   return (
     <>
       {homeWidgets.length ? (
@@ -425,6 +438,7 @@ export default function HomePage() {
           </div>
 
           <div className='floating-actions'>
+            <span className='sort-label'>Pins visible: {mapPinCount}</span>
             <span className='sort-label'>Sort:</span>
             <button
               type='button'
