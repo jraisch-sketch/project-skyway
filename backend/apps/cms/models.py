@@ -122,3 +122,31 @@ class CMSWidgetPlacement(models.Model):
     def __str__(self) -> str:
         target = self.page.title if self.page_id else (self.route_path or 'unassigned')
         return f'{self.widget.name} -> {target} ({self.slot})'
+
+
+class SiteConfiguration(models.Model):
+    name = models.CharField(max_length=120, default='Default configuration')
+    invitation_code_required = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Site configuration'
+        verbose_name_plural = 'Site configuration'
+
+    def __str__(self) -> str:
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        config, _ = cls.objects.get_or_create(
+            pk=1,
+            defaults={
+                'name': 'Default configuration',
+                'invitation_code_required': True,
+            },
+        )
+        return config

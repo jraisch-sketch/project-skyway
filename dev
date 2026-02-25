@@ -1,0 +1,243 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_DIR="$ROOT_DIR/backend"
+FRONTEND_DIR="$ROOT_DIR/frontend"
+
+BACKEND_PID_FILE="/tmp/skyway-backend.pid"
+FRONTEND_PID_FILE="/tmp/skyway-frontend.pid"
+BACKEND_LOG="/tmp/skyway-backend.log"
+FRONTEND_LOG="/tmp/skyway-frontend.log"
+
+BACKEND_URL="http://127.0.0.1:8000/api/filters/"
+FRONTEND_URL="http://127.0.0.1:3000"
+
+usage() {
+  cat <<'EOF'
+Usage: ./dev <command>
+
+Commands:
+  setup   Install dependencies and create local env files if missing
+  up      Start backend and frontend in the background
+  down    Stop backend and frontend
+  status  Show whether services are running
+  logs    Tail backend and frontend logs
+EOF
+}
+
+print_header() {
+  echo
+  echo "== $1 =="
+}
+
+pid_is_running() {
+  local pid="$1"
+  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+}
+
+read_pid() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    cat "$file"
+  fi
+}
+
+ensure_backend_env() {
+  if [[ ! -f "$BACKEND_DIR/.env" && -f "$BACKEND_DIR/.env.example" ]]; then
+    cp "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
+    echo "Created backend/.env from .env.example"
+  fi
+}
+
+ensure_frontend_env() {
+  if [[ ! -f "$FRONTEND_DIR/.env.local" && -f "$FRONTEND_DIR/.env.local.example" ]]; then
+    cp "$FRONTEND_DIR/.env.local.example" "$FRONTEND_DIR/.env.local"
+    echo "Created frontend/.env.local from .env.local.example"
+  fi
+}
+
+setup_backend() {
+  print_header "Backend setup"
+  if [[ ! -x "$BACKEND_DIR/.venv/bin/python" ]]; then
+    (cd "$BACKEND_DIR" && python3 -m venv .venv)
+    echo "Created backend virtualenv"
+    (
+      cd "$BACKEND_DIR"
+      source .venv/bin/activate
+      pip install -r requirements.txt
+    )
+  else
+    echo "Backend virtualenv already exists; skipping pip install"
+  fi
+
+  ensure_backend_env
+}
+
+setup_frontend() {
+  print_header "Frontend setup"
+  if [[ ! -d "$FRONTEND_DIR/node_modules" ]]; then
+    (cd "$FRONTEND_DIR" && npm install)
+  else
+    echo "frontend/node_modules already exists; skipping npm install"
+  fi
+  ensure_frontend_env
+}
+
+setup_all() {
+  setup_backend
+  setup_frontend
+  print_header "Setup complete"
+}
+
+wait_for_url() {
+  local name="$1"
+  local url="$2"
+  local seconds="${3:-20}"
+
+  for _ in $(seq 1 "$seconds"); do
+    if curl -fsS "$url" >/dev/null 2>&1; then
+      echo "$name is responding at $url"
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "$name did not become healthy in ${seconds}s: $url"
+  return 1
+}
+
+start_backend() {
+  print_header "Starting backend"
+  local pid
+  pid="$(read_pid "$BACKEND_PID_FILE" || true)"
+  if pid_is_running "$pid"; then
+    echo "Backend already running (pid $pid)"
+    return 0
+  fi
+
+  ensure_backend_env
+
+  if ! (
+    cd "$BACKEND_DIR"
+    source .venv/bin/activate
+    python manage.py migrate --noinput
+  ); then
+    echo "Backend migration failed. Ensure PostgreSQL is running and backend/.env is correct."
+    return 1
+  fi
+
+  nohup /bin/bash -lc "cd \"$BACKEND_DIR\" && source .venv/bin/activate && exec python manage.py runserver 127.0.0.1:8000" \
+    >"$BACKEND_LOG" 2>&1 &
+  echo "$!" >"$BACKEND_PID_FILE"
+
+  if ! wait_for_url "Backend" "$BACKEND_URL" 25; then
+    echo "Last backend log lines:"
+    tail -n 40 "$BACKEND_LOG" || true
+    return 1
+  fi
+}
+
+start_frontend() {
+  print_header "Starting frontend"
+  local pid
+  pid="$(read_pid "$FRONTEND_PID_FILE" || true)"
+  if pid_is_running "$pid"; then
+    echo "Frontend already running (pid $pid)"
+    return 0
+  fi
+
+  ensure_frontend_env
+
+  nohup /bin/bash -lc "cd \"$FRONTEND_DIR\" && exec npm run dev -- -H 127.0.0.1 -p 3000" \
+    >"$FRONTEND_LOG" 2>&1 &
+  echo "$!" >"$FRONTEND_PID_FILE"
+
+  if ! wait_for_url "Frontend" "$FRONTEND_URL" 25; then
+    echo "Last frontend log lines:"
+    tail -n 40 "$FRONTEND_LOG" || true
+    return 1
+  fi
+}
+
+stop_service() {
+  local name="$1"
+  local pid_file="$2"
+  local pid
+  pid="$(read_pid "$pid_file" || true)"
+
+  if ! pid_is_running "$pid"; then
+    echo "$name is not running"
+    rm -f "$pid_file"
+    return 0
+  fi
+
+  kill "$pid" 2>/dev/null || true
+  for _ in $(seq 1 10); do
+    if ! pid_is_running "$pid"; then
+      break
+    fi
+    sleep 1
+  done
+  if pid_is_running "$pid"; then
+    kill -9 "$pid" 2>/dev/null || true
+  fi
+  rm -f "$pid_file"
+  echo "$name stopped"
+}
+
+status_all() {
+  print_header "Service status"
+  local backend_pid frontend_pid
+  backend_pid="$(read_pid "$BACKEND_PID_FILE" || true)"
+  frontend_pid="$(read_pid "$FRONTEND_PID_FILE" || true)"
+
+  if pid_is_running "$backend_pid"; then
+    echo "Backend: running (pid $backend_pid) -> http://127.0.0.1:8000"
+  else
+    echo "Backend: stopped"
+  fi
+
+  if pid_is_running "$frontend_pid"; then
+    echo "Frontend: running (pid $frontend_pid) -> http://127.0.0.1:3000"
+  else
+    echo "Frontend: stopped"
+  fi
+
+  echo "Logs: $BACKEND_LOG and $FRONTEND_LOG"
+}
+
+logs_all() {
+  print_header "Tailing logs"
+  touch "$BACKEND_LOG" "$FRONTEND_LOG"
+  tail -n 120 -f "$BACKEND_LOG" "$FRONTEND_LOG"
+}
+
+up_all() {
+  setup_all
+  start_backend
+  start_frontend
+  print_header "Ready"
+  echo "Backend:  http://127.0.0.1:8000/api"
+  echo "Frontend: http://127.0.0.1:3000"
+}
+
+down_all() {
+  print_header "Stopping services"
+  stop_service "Frontend" "$FRONTEND_PID_FILE"
+  stop_service "Backend" "$BACKEND_PID_FILE"
+}
+
+main() {
+  local cmd="${1:-}"
+  case "$cmd" in
+    setup) setup_all ;;
+    up) up_all ;;
+    down) down_all ;;
+    status) status_all ;;
+    logs) logs_all ;;
+    *) usage; exit 1 ;;
+  esac
+}
+
+main "${1:-}"

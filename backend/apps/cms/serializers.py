@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CMSNavItem, CMSNavigation, CMSPage, CMSWidget, CMSWidgetPlacement
+from .models import CMSNavItem, CMSNavigation, CMSPage, CMSWidget, CMSWidgetPlacement, SiteConfiguration
 
 
 class CMSWidgetSerializer(serializers.ModelSerializer):
@@ -75,3 +75,9 @@ class CMSPageSerializer(serializers.ModelSerializer):
             .order_by('slot', 'sort_order', 'id')
         )
         return CMSWidgetPlacementSerializer(placements, many=True, context=self.context).data
+
+
+class SiteConfigurationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteConfiguration
+        fields = ('invitation_code_required',)

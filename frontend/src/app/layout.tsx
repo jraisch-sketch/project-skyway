@@ -1,9 +1,14 @@
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 import Link from 'next/link';
+import AccessGate from '@/components/AccessGate';
 import HeaderNav from '@/components/HeaderNav';
 import { serverApiFetch } from '@/lib/serverApi';
 import type { CmsNavigation } from '@/lib/types';
+
+type SiteConfig = {
+  invitation_code_required: boolean;
+};
 
 export const metadata = {
   title: 'Skyway | Collegiate Cycling Finder',
@@ -13,6 +18,8 @@ export const metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const topNav = await serverApiFetch<CmsNavigation>('/cms/navigations/main-top-nav/');
   const footerNav = await serverApiFetch<CmsNavigation>('/cms/navigations/main-footer-nav/');
+  const siteConfig = await serverApiFetch<SiteConfig>('/cms/config/');
+  const invitationCodeRequired = siteConfig?.invitation_code_required ?? true;
   const initialPrimaryLinks =
     topNav?.items?.map((item) => ({
       href: item.page_slug ? `/content/${item.page_slug}` : (item.external_url || '#'),
@@ -33,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
+        <AccessGate invitationCodeRequired={invitationCodeRequired} />
         <header className="header">
           <div className="container nav">
             <Link href="/" className="brand" aria-label="Skyway home">

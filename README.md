@@ -8,7 +8,34 @@ MVP stack:
 - Auth: Email/password + email verification + password reset
 - Admin: Django Admin + CSV upload for schools
 
-## 1. Backend setup
+## Quick start (one command)
+
+From repo root:
+
+```bash
+./dev up
+```
+
+This command will:
+- create env files if missing
+- install backend/frontend dependencies
+- run Django migrations
+- start backend (`127.0.0.1:8000`) and frontend (`127.0.0.1:3000`) in background
+
+Useful commands:
+
+```bash
+./dev status   # show service status
+./dev logs     # tail backend/frontend logs
+./dev down     # stop both services
+./dev setup    # run setup only
+```
+
+Logs are written to:
+- `/tmp/skyway-backend.log`
+- `/tmp/skyway-frontend.log`
+
+## 1. Backend setup (manual)
 
 ```bash
 cd /Users/johnraisch/Documents/New\ project/backend
@@ -35,7 +62,7 @@ Or CLI:
 python manage.py import_schools_csv "/Users/johnraisch/Downloads/Project Skyway - Schools.csv"
 ```
 
-## 2. Frontend setup
+## 2. Frontend setup (manual)
 
 ```bash
 cd /Users/johnraisch/Documents/New\ project/frontend
@@ -56,6 +83,27 @@ Frontend runs at `http://localhost:3000`.
 - Email verification + password reset
 - Favorites API with private/public visibility
 - Public favorites endpoint support (`GET /api/favorites/?public=true`)
+
+## Invitation Access Gate
+
+- Entire frontend is gated by an invitation code modal.
+- Django admin is exempt (`/admin` remains normal).
+- Access code is sticky via cookie and device-bound.
+- Default code expiration is one week.
+- If expired, entering the same valid code renews it for another week.
+- Success and failed attempts are logged with timestamp, client IP (`X-Forwarded-For` aware), device id, and source.
+
+### Admin management
+
+In Django Admin:
+- `Accounts -> Access codes`: create/manage codes and invitee metadata.
+- `Accounts -> Access code logs`: review successful passes and failed attempts.
+- `Cms -> Site configuration`: toggle `Invitation code required` on/off by environment.
+
+Useful admin actions on access codes:
+- extend selected codes by one week
+- enable/disable codes
+- clear device binding
 
 ## Address Sourcing + Geocoding Workflow
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CMSNavItem, CMSNavigation, CMSPage, CMSWidget, CMSWidgetPlacement
+from .models import CMSNavItem, CMSNavigation, CMSPage, CMSWidget, CMSWidgetPlacement, SiteConfiguration
 
 
 class CMSNavItemInline(admin.TabularInline):
@@ -45,3 +45,18 @@ class CMSWidgetPlacementAdmin(admin.ModelAdmin):
     list_display = ('widget', 'page', 'route_path', 'slot', 'sort_order', 'is_published')
     list_filter = ('slot', 'is_published')
     search_fields = ('widget__name', 'page__title', 'route_path')
+
+
+@admin.register(SiteConfiguration)
+class SiteConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'invitation_code_required', 'updated_at')
+    fields = ('name', 'invitation_code_required', 'updated_at')
+    readonly_fields = ('updated_at',)
+
+    def has_add_permission(self, request):
+        if SiteConfiguration.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False

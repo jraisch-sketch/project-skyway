@@ -30,6 +30,10 @@ body {
   color: var(--text);
 }
 
+body.invite-gate-locked {
+  overflow: hidden;
+}
+
 a {
   color: #7fb6ff;
   text-decoration: none;
@@ -110,6 +114,102 @@ body > main.container {
 .nav-link-button:hover {
   border-color: rgba(117, 156, 219, 0.6);
   color: #ebf4ff;
+}
+
+.invite-gate-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(8, 16, 28, 0.48);
+  backdrop-filter: blur(0.8px);
+}
+
+.invite-gate-modal {
+  position: relative;
+  z-index: 5001;
+  width: min(92vw, 260px);
+  border-radius: 16px;
+  border: 1px solid rgba(122, 155, 212, 0.55);
+  background: linear-gradient(180deg, rgba(13, 22, 39, 0.95), rgba(10, 17, 30, 0.95));
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.44);
+  padding: 0.75rem;
+}
+
+.invite-gate-eyebrow {
+  margin: 0 0 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: #9ec1f3;
+}
+
+.invite-gate-modal h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.02rem;
+}
+
+.invite-gate-copy {
+  margin: 0 0 0.9rem;
+  color: #b9cee9;
+  line-height: 1.32;
+  font-size: 0.85rem;
+}
+
+.invite-gate-form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.invite-gate-form label {
+  font-size: 0.78rem;
+  color: #d4e5ff;
+}
+
+.invite-gate-form input {
+  width: 100%;
+  padding: 0.42rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(113, 141, 194, 0.58);
+  background: rgba(17, 30, 52, 0.88);
+  color: #eff7ff;
+  font-size: 0.82rem;
+}
+
+.invite-gate-form input:focus {
+  outline: 2px solid rgba(86, 147, 239, 0.85);
+  outline-offset: 1px;
+}
+
+.invite-gate-form button {
+  margin-top: 0.35rem;
+  border: 1px solid rgba(97, 143, 212, 0.6);
+  border-radius: 999px;
+  padding: 0.38rem 0.72rem;
+  background: linear-gradient(180deg, rgba(58, 124, 222, 0.95), rgba(45, 105, 197, 0.95));
+  color: #f7fbff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.invite-gate-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.invite-gate-error {
+  margin: 0.72rem 0 0;
+  color: #ffb1b1;
+  font-size: 0.8rem;
+}
+
+.invite-gate-help {
+  margin: 0.72rem 0 0;
+  color: #a9c0e0;
+  font-size: 0.79rem;
 }
 
 .footer {
@@ -544,6 +644,28 @@ h2 {
   margin: 0.2rem 0 0;
   color: #9db4d5;
   font-size: 0.84rem;
+}
+
+.auth-inline-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.auth-inline-link:hover {
+  color: var(--skyway-blue);
+}
+
+.auth-inline-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .auth-combo-grid {
@@ -2310,6 +2432,7 @@ body {
 .sort-label,
 .filter-field > span,
 .auth-note,
+.auth-inline-link,
 .toc-muted,
 .legend-item,
 .school-overlay-content p,
