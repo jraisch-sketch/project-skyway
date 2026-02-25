@@ -27,7 +27,7 @@ DISCIPLINE_FIELD_MAP = {
 
 
 class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = School.objects.all()
+    queryset = School.objects.filter(hidden=False)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -35,7 +35,7 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
         return SchoolListSerializer
 
     def get_queryset(self):
-        qs = School.objects.all()
+        qs = School.objects.filter(hidden=False)
         q = self.request.query_params.get('q', '').strip()
         team_type = self.request.query_params.get('team_type', '').strip()
         conference = self.request.query_params.get('conference', '').strip()
@@ -129,12 +129,18 @@ class FavoriteSchoolViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def filter_options(request):
     conferences = (
-        School.objects.exclude(conference__isnull=True)
+        School.objects.filter(hidden=False).exclude(conference__isnull=True)
         .values_list('conference__name', flat=True)
         .distinct()
         .order_by('conference__name')
     )
-    states = School.objects.exclude(state='').values_list('state', flat=True).distinct().order_by('state')
+    states = (
+        School.objects.filter(hidden=False)
+        .exclude(state='')
+        .values_list('state', flat=True)
+        .distinct()
+        .order_by('state')
+    )
     return Response(
         {
             'team_types': [choice[0] for choice in School.TeamType.choices],
@@ -148,6 +154,10 @@ def filter_options(request):
 
 @api_view(['GET'])
 def conferences_list(request):
-    conferences = Conference.objects.annotate(team_count=Count('schools')).order_by('name')
+    conferences = (
+        Conference.objects.annotate(team_count=Count('schools', filter=Q(schools__hidden=False)))
+        .filter(team_count__gt=0)
+        .order_by('name')
+    )
     serializer = ConferenceSerializer(conferences, many=True)
     return Response(serializer.data)

@@ -109,6 +109,7 @@ class School(models.Model):
         db_index=True,
     )
     locale = models.CharField(max_length=120, blank=True, db_index=True)
+    hidden = models.BooleanField(default=False, db_index=True)
 
     logo = models.ImageField(upload_to='school-logos/', blank=True)
 

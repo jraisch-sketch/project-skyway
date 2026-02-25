@@ -149,6 +149,7 @@ class NCESDuplicateFilter(admin.SimpleListFilter):
 class SchoolAdmin(admin.ModelAdmin):
     list_display = (
         'name',
+        'hidden',
         'nces_unitid',
         'team_type',
         'cycling_program_status',
@@ -164,6 +165,7 @@ class SchoolAdmin(admin.ModelAdmin):
         'updated_at',
     )
     list_filter = (
+        'hidden',
         'team_type',
         'cycling_program_status',
         'state',
@@ -185,6 +187,17 @@ class SchoolAdmin(admin.ModelAdmin):
     search_fields = ('name', 'nces_unitid', 'city', 'state', 'conference__name')
     change_list_template = 'admin/schools/school/change_list.html'
     readonly_fields = ('openstreetmap_link', 'openstreetmap_embed', 'next_needs_review_link')
+    actions = ('hide_selected_schools', 'unhide_selected_schools')
+
+    @admin.action(description='Hide selected schools')
+    def hide_selected_schools(self, request, queryset):
+        updated = queryset.update(hidden=True)
+        self.message_user(request, f'Hidden {updated} school(s).', level=messages.SUCCESS)
+
+    @admin.action(description='Unhide selected schools')
+    def unhide_selected_schools(self, request, queryset):
+        updated = queryset.update(hidden=False)
+        self.message_user(request, f'Unhid {updated} school(s).', level=messages.SUCCESS)
 
     def openstreetmap_link(self, obj: School):
         if obj.latitude is None or obj.longitude is None:
