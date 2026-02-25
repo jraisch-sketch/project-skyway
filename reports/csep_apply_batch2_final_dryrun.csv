@@ -1,0 +1,26 @@
+status,school_id,school_name,details
+skipped,9,James Madison University,
+skipped,10,Johns Hopkins University,
+updated,11,Montgomery College,cycling_program_status
+skipped,12,Mount St. Mary's University,
+skipped,13,North Carolina State University at Raleigh,
+updated,14,Oklahoma State University,cycling_program_status
+skipped,15,Roanoke College,
+skipped,16,Saint Augustines University,
+updated,17,University of Maryland-Baltimore County,cycling_program_status
+skipped,18,University of Maryland-College Park,
+updated,19,University of North Carolina at Chapel Hill,"cycling_program_status,cyclocross,mtb_xc,road"
+updated,20,University of Virginia,"mtb_enduro,mtb_st,mtb_xc,road"
+skipped,21,US Naval Academy,
+skipped,22,Virginia Commonwealth University,
+skipped,23,Virginia Polytechnic University,
+skipped,24,Wake Forest University,
+skipped,25,West Virginia University,
+skipped,26,Colorado Mesa University,
+skipped,27,Fort Lewis College,
+skipped,28,Western Colorado University,
+updated,29,Adams State University,cycling_program_status
+updated,30,Colorado Christian University,cycling_program_status
+skipped,31,Colorado College,
+skipped,32,Colorado Mountain College,
+skipped,33,Colorado School of Mines,

@@ -1,0 +1,170 @@
+status,school_id,school_name,details
+updated,87,University of Alabama-Huntsville,cycling_program_status
+updated,88,University of Central Florida,cycling_program_status
+updated,89,University of Florida,cycling_program_status
+updated,90,University of Georgia,cycling_program_status
+updated,91,University of Mississippi,cycling_program_status
+updated,92,University of North Georgia,cycling_program_status
+updated,93,University of South Florida,cycling_program_status
+updated,94,Western Carolina University,cycling_program_status
+updated,95,Lindenwood University,cycling_program_status
+updated,96,Marian University,cycling_program_status
+updated,97,Ball State University,cycling_program_status
+updated,98,Butler University,cycling_program_status
+updated,99,Calvin College,cycling_program_status
+updated,100,Case Western Reserve University,cycling_program_status
+updated,101,DePaul University,cycling_program_status
+updated,102,DePauw University,cycling_program_status
+updated,103,Hillsdale College,cycling_program_status
+updated,104,Indiana University-Bloomington,cycling_program_status
+updated,105,Lawrence University,cycling_program_status
+updated,106,Miami University-Oxford,cycling_program_status
+updated,107,Michigan State University,cycling_program_status
+updated,108,Michigan Technological University,cycling_program_status
+updated,109,Missouri University of Science and Technology,cycling_program_status
+updated,110,North Park University,cycling_program_status
+updated,111,Northern Michigan University,cycling_program_status
+updated,112,Northwestern University,cycling_program_status
+updated,113,Oberlin College,cycling_program_status
+updated,114,Ohio State University,cycling_program_status
+updated,115,Purdue University,cycling_program_status
+updated,116,Ripon College,cycling_program_status
+updated,117,Saint Louis University,cycling_program_status
+updated,118,Southern Illinois University Carbondale,cycling_program_status
+updated,119,Southern Illinois University Edwardsville,cycling_program_status
+updated,120,The College of Wooster,cycling_program_status
+updated,121,University of Chicago,cycling_program_status
+updated,122,University of Cincinnati,cycling_program_status
+updated,123,University of Illinois at Urbana-Champaign,cycling_program_status
+updated,124,University of Louisville,cycling_program_status
+updated,125,University of Michigan-Ann Arbor,cycling_program_status
+updated,126,University of Missouri-Columbia,cycling_program_status
+updated,127,University of Notre Dame,cycling_program_status
+updated,128,University of Wisconsin-Madison,cycling_program_status
+updated,129,University of Wisconsin-Platteville,"cycling_program_status,road"
+updated,130,University of Wisconsin-Stevens Point,cycling_program_status
+updated,131,University of Wisconsin-Whitewater,cycling_program_status
+updated,132,Washington University in St Louis,cycling_program_status
+updated,133,Western Illinois University,cycling_program_status
+updated,134,Western Michigan University,cycling_program_status
+updated,135,Wright State University,cycling_program_status
+updated,136,Bard College,cycling_program_status
+updated,137,Bates College,cycling_program_status
+updated,140,Bowdoin College,cycling_program_status
+updated,141,Brandeis University,cycling_program_status
+updated,142,Brown University,cycling_program_status
+updated,143,Bucknell University,cycling_program_status
+updated,144,Carnegie Mellon University,cycling_program_status
+updated,145,Castleton University,cycling_program_status
+updated,146,Clarkson University,cycling_program_status
+updated,147,Colby College,cycling_program_status
+updated,149,Cornell University,cycling_program_status
+updated,150,Dartmouth College,cycling_program_status
+updated,151,Drexel University,cycling_program_status
+updated,152,Hamilton College,cycling_program_status
+updated,153,Harvard University,cycling_program_status
+updated,154,IIndiana University of Pennsylvania,cycling_program_status
+updated,155,Juniata College,cycling_program_status
+updated,156,Lafayette College,"cycling_program_status,road"
+updated,157,Lehigh University,cycling_program_status
+updated,158,Marlboro College (Closed in 2020),cycling_program_status
+updated,159,Marywood University,cycling_program_status
+updated,160,Massachusetts College of Liberal Arts,"cycling_program_status,road"
+updated,161,Massachusetts Institute of Technology,"cycling_program_status,road"
+updated,162,Middlebury College,cycling_program_status
+updated,163,New York University,cycling_program_status
+updated,164,Northeastern University,cycling_program_status
+updated,165,Penn State Behrend,cycling_program_status
+updated,166,Penn State-Lehigh Valley,cycling_program_status
+updated,167,Penn State Main Campus,cycling_program_status
+updated,168,Plymouth State University,cycling_program_status
+updated,169,Princeton University,cycling_program_status
+updated,170,Rensselaer Polytechnic Institute,cycling_program_status
+updated,171,Rhode Island School of Design,cycling_program_status
+updated,172,Rochester Institute of Technology,cycling_program_status
+updated,173,Rutgers University-New Brunswick,cycling_program_status
+updated,174,Saint Lawrence University,cycling_program_status
+updated,175,Saint Michaels College,cycling_program_status
+updated,176,Shippensburg University of Pennsylvania,cycling_program_status
+updated,177,Smith College,cycling_program_status
+updated,178,Suny Maritime College,cycling_program_status
+updated,179,Swarthmore College,cycling_program_status
+updated,180,Syracuse University,cycling_program_status
+updated,181,Temple University,cycling_program_status
+updated,182,Tufts University,cycling_program_status
+updated,183,Union College-NY,cycling_program_status
+updated,184,United States Coast Guard Academy,cycling_program_status
+updated,185,University of Connecticut,cycling_program_status
+updated,186,University of Delaware,cycling_program_status
+updated,187,University of Maine-Orono,cycling_program_status
+updated,188,University of Massachusetts Amherst,"cycling_program_status,road"
+updated,189,University of New Hampshire,cycling_program_status
+updated,190,University of Pennsylvania,cycling_program_status
+updated,191,University of Pittsburgh,"cycling_program_status,road"
+updated,192,University of Rhode Island,cycling_program_status
+updated,193,University of Rochester,cycling_program_status
+updated,194,University of Vermont,cycling_program_status
+updated,195,US Military Academy,cycling_program_status
+updated,196,Vermont Technical College,cycling_program_status
+updated,197,Williams College,cycling_program_status
+updated,198,Worcester Polytechnic Institute,cycling_program_status
+updated,199,Yale University,cycling_program_status
+updated,200,Westminster College,cycling_program_status
+updated,201,Rocky Mountain University of Health Professionals,cycling_program_status
+skipped,202,University of Utah,
+updated,203,Utah State University,cycling_program_status
+updated,204,Utah Valley University,cycling_program_status
+updated,205,Weber State University,cycling_program_status
+updated,206,Lake Superior College,cycling_program_status
+updated,207,Iowa State University,cycling_program_status
+updated,208,Minnesota State College Southeast - Red Wing,cycling_program_status
+updated,209,University of Iowa,cycling_program_status
+updated,210,University of Kansas,cycling_program_status
+updated,211,University of Minnesota-Duluth,cycling_program_status
+updated,212,University of Minnesota-Twin Cities,cycling_program_status
+updated,213,University of Nebraska-Lincoln,cycling_program_status
+updated,214,Southern Oregon University,cycling_program_status
+updated,216,Boise State University,cycling_program_status
+updated,217,Central Washington University,cycling_program_status
+updated,218,Eastern Washington University,cycling_program_status
+updated,220,Lewis & Clark College,cycling_program_status
+updated,221,Montana State University,cycling_program_status
+updated,222,Oregon State University,cycling_program_status
+updated,223,Portland State University,cycling_program_status
+updated,224,Seattle University,"cycling_program_status,road"
+updated,225,The University of Montana,cycling_program_status
+updated,227,University of Idaho,cycling_program_status
+updated,228,University of Oregon,cycling_program_status
+updated,229,University of Puget Sound,cycling_program_status
+updated,230,University of Washington-Seattle,"cycling_program_status,road"
+updated,231,Warner Pacific University,cycling_program_status
+updated,232,Washington State University,cycling_program_status
+updated,233,Western Washington University,cycling_program_status
+updated,234,Whitman College,cycling_program_status
+updated,235,Midwestern State University,cycling_program_status
+updated,236,Abilene Christian University,cycling_program_status
+updated,237,Baylor University,cycling_program_status
+updated,238,Louisiana State University,cycling_program_status
+updated,239,Lyon College,cycling_program_status
+updated,240,Nicholls State University,cycling_program_status
+updated,241,Rice University,cycling_program_status
+updated,242,Schreiner University,cycling_program_status
+updated,243,Texas A & M University,cycling_program_status
+updated,244,Texas State University-San Marcos,cycling_program_status
+updated,245,Texas Tech University,cycling_program_status
+updated,246,The University of Texas at Austin,cycling_program_status
+updated,247,The University of Texas at Dallas,cycling_program_status
+updated,248,University of Arkansas,cycling_program_status
+updated,249,University of Louisiana-Lafayette,"cycling_program_status,road"
+updated,250,University of North Texas,cycling_program_status
+updated,251,University of Oklahoma,cycling_program_status
+updated,252,University of Texas at Arlington,cycling_program_status
+updated,253,University of Texas-San Antonio,cycling_program_status
+updated,254,Idaho State University,cycling_program_status
+updated,256,Arizona State University,cycling_program_status
+updated,257,Blue Mt. Community College,cycling_program_status
+updated,258,Boston College,cycling_program_status
+updated,259,Boston University,cycling_program_status
+updated,261,Colorado State University,cycling_program_status
+updated,262,Columbia University-NYC,cycling_program_status
+updated,263,Florida State University,cycling_program_status

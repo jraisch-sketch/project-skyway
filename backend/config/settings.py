@@ -135,3 +135,6 @@ EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.Em
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@projectskyway.org')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+AWS_SES_REGION_NAME = os.getenv('AWS_SES_REGION_NAME', os.getenv('AWS_REGION', 'us-east-1'))
+AWS_SES_ENDPOINT_URL = os.getenv('AWS_SES_ENDPOINT_URL', '')
+AWS_SES_CONFIGURATION_SET = os.getenv('AWS_SES_CONFIGURATION_SET', '')

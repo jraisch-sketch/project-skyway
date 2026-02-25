@@ -1,0 +1,26 @@
+status,nces_unitid,school_id,school_name,details
+updated,220516,1,King University,"enrollment,acceptance_rate,graduation_rate"
+updated,232557,2,Liberty University,"enrollment,acceptance_rate,graduation_rate"
+skipped,18409201,3,American University,
+updated,197869,4,Appalachian State University,"enrollment,acceptance_rate,graduation_rate"
+updated,231624,5,College of William and Mary,"enrollment,acceptance_rate,graduation_rate"
+updated,198419,6,Duke University,"enrollment,acceptance_rate,graduation_rate"
+updated,232186,7,George Mason University,"enrollment,acceptance_rate,graduation_rate"
+updated,156745,8,Georgetown University,"enrollment,acceptance_rate,graduation_rate"
+updated,232423,9,James Madison University,"enrollment,acceptance_rate,graduation_rate"
+updated,162928,10,Johns Hopkins University,"enrollment,acceptance_rate,graduation_rate"
+updated,199023,11,Montgomery College,enrollment
+updated,163462,12,Mount St. Mary's University,"enrollment,acceptance_rate,graduation_rate"
+updated,199193,13,North Carolina State University at Raleigh,"enrollment,acceptance_rate,graduation_rate"
+updated,207388,14,Oklahoma State University,"enrollment,acceptance_rate,graduation_rate"
+updated,233426,15,Roanoke College,"enrollment,acceptance_rate,graduation_rate"
+updated,199582,16,Saint Augustines University,"enrollment,acceptance_rate,graduation_rate"
+updated,434672,17,University of Maryland-Baltimore County,enrollment
+updated,163295,18,University of Maryland-College Park,"enrollment,acceptance_rate,graduation_rate"
+updated,199120,19,University of North Carolina at Chapel Hill,"enrollment,acceptance_rate,graduation_rate"
+updated,234155,20,University of Virginia,"enrollment,acceptance_rate,graduation_rate"
+updated,164155,21,US Naval Academy,"enrollment,acceptance_rate,graduation_rate"
+updated,234030,22,Virginia Commonwealth University,"enrollment,acceptance_rate,graduation_rate"
+updated,233921,23,Virginia Polytechnic University,"enrollment,acceptance_rate,graduation_rate"
+updated,199847,24,Wake Forest University,"enrollment,acceptance_rate,graduation_rate"
+updated,238032,25,West Virginia University,"enrollment,acceptance_rate,graduation_rate"

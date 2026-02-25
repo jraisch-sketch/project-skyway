@@ -1,0 +1,26 @@
+status,school_id,school_name,details
+updated,35,Pikes Peak Community College,cycling_program_status
+updated,36,Regis University,cycling_program_status
+updated,37,University of Colorado Boulder,"cyclocross,mtb_xc,road"
+updated,38,University of Colorado Colorado Springs,cycling_program_status
+updated,39,University of Colorado Denver,cycling_program_status
+updated,40,University of Denver,cycling_program_status
+updated,41,University of Northern Colorado,cycling_program_status
+updated,42,University of Wyoming,"mtb_downhill,mtb_slalom,mtb_st,mtb_xc"
+updated,43,US Air Force Academy,cycling_program_status
+updated,45,Embry Riddle Aeronautical University-Prescott,"cycling_program_status,road"
+updated,46,Institute of American Indian Arts,cycling_program_status
+updated,47,Navajo Technical University,cycling_program_status
+updated,48,New Mexico State University,cycling_program_status
+updated,49,Northern Arizona University,cycling_program_status
+updated,50,Ottawa University-Phoenix,"cycling_program_status,road"
+updated,51,Prescott College,"cycling_program_status,road"
+updated,52,University of Arizona,"cyclocross,mtb_xc,road"
+updated,53,University of New Mexico,"cycling_program_status,cyclocross,mtb_xc,road"
+updated,54,Belmont Abbey College,mtb_xc
+updated,55,Brevard College,"cyclocross,head_coach,mtb_downhill,mtb_slalom,mtb_st,mtb_xc"
+updated,56,Lees-McRae College,"mtb_downhill,mtb_slalom,mtb_st,mtb_xc"
+updated,57,Milligan University,cycling_program_status
+updated,58,Piedmont University,cycling_program_status
+updated,60,Savannah College of Art and Design - Savannah,cycling_program_status
+updated,61,Truett McConnell University,"cycling_program_status,road"

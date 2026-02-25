@@ -1,0 +1,9 @@
+status,school_id,school_name,details
+updated,1,King University,"cyclocross,head_coach,mtb_st,mtb_xc,road"
+updated,2,Liberty University,"cyclocross,mtb_xc,road"
+updated,3,American University,cycling_program_status
+updated,4,Appalachian State University,cycling_program_status
+updated,5,College of William and Mary,cycling_program_status
+skipped,6,Duke University,
+skipped,7,George Mason University,
+updated,8,Georgetown University,"cycling_program_status,cyclocross,mtb_xc,road"

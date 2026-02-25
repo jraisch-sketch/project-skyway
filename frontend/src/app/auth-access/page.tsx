@@ -37,6 +37,7 @@ function AuthAccessPageContent() {
   });
   const [loginMessage, setLoginMessage] = useState<MessageState>(null);
   const [registerMessage, setRegisterMessage] = useState<MessageState>(null);
+  const [passwordResetMessage, setPasswordResetMessage] = useState<MessageState>(null);
   const [busy, setBusy] = useState(false);
 
   const addFavoriteIfNeeded = async (token: string) => {
@@ -139,6 +140,35 @@ function AuthAccessPageContent() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    setPasswordResetMessage(null);
+    if (!loginEmail.trim()) {
+      setPasswordResetMessage({ type: 'error', text: 'Enter your email above, then request a reset link.' });
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const response = await fetch(`${API_BASE}/auth/password-reset/request/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail.trim() }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setPasswordResetMessage({ type: 'error', text: normalizeApiError(data, 'Could not request password reset.') });
+        return;
+      }
+      const detail = normalizeApiError(data, 'If the account exists, a password reset email has been sent.');
+      setPasswordResetMessage({ type: 'success', text: detail });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not request password reset.';
+      setPasswordResetMessage({ type: 'error', text: message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section className='panel'>
       <h1>{schoolId ? 'Log in or Create Account to Favorite this School' : 'Log in or Create Account'}</h1>
@@ -165,8 +195,17 @@ function AuthAccessPageContent() {
               {loginMessage.text}
             </p>
           )}
+          {passwordResetMessage && (
+            <p className={passwordResetMessage.type === 'error' ? 'auth-error' : 'auth-success'}>
+              {passwordResetMessage.text}
+            </p>
+          )}
           <p className='auth-note'>
-            <Link href='/forgot-password'>Forgot password?</Link>
+            <button type='button' className='auth-inline-link' onClick={handleForgotPassword} disabled={busy}>
+              Forgot password? Send reset link
+            </button>
+            {' · '}
+            <Link href='/forgot-password'>Open reset page</Link>
           </p>
         </form>
 

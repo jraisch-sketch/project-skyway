@@ -1,0 +1,26 @@
+status,school_id,school_name,details
+updated,62,University of Montevallo,mtb_xc
+updated,63,Warren Wilson College,mtb_xc
+updated,64,Auburn University,cycling_program_status
+updated,65,Belhaven University,cycling_program_status
+updated,66,Clemson University,road
+updated,67,Clinton College,cycling_program_status
+skipped,68,East Tennessee State University,
+updated,69,Embry Riddle Aeronautical University-Daytona Beach,cycling_program_status
+updated,70,Emory University,cycling_program_status
+updated,71,Florida State University,cycling_program_status
+updated,72,Furman University,cycling_program_status
+updated,73,Gamecock Cycling - USC,cycling_program_status
+updated,74,Georgia Highlands College,cycling_program_status
+updated,75,Georgia Institute of Technology,"mtb_xc,road"
+updated,76,Georgia Southern University,cycling_program_status
+updated,77,Georgia State University,cycling_program_status
+updated,78,Kennesaw State University,mtb_xc
+updated,79,Lindsey Wilson College,"cyclocross,mtb_xc"
+updated,80,Mars Hill University,cycling_program_status
+updated,81,Sewanee-The University of the South,mtb_xc
+updated,82,Stetson University,cycling_program_status
+updated,83,The University of Tennessee,mtb_xc
+updated,84,The University of Tennessee at Chattanooga,"cycling_program_status,road"
+updated,85,Tulane University of Louisiana,cycling_program_status
+updated,86,Union College-KY,cycling_program_status
