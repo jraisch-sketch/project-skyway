@@ -27,7 +27,6 @@ export default function HomePage() {
   const [teamType, setTeamType] = useState('');
   const [conference, setConference] = useState('');
   const [state, setState] = useState('');
-  const [sort, setSort] = useState('relevance');
   const [disciplines, setDisciplines] = useState<string[]>([]);
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -124,7 +123,6 @@ export default function HomePage() {
     if (teamType) params.set('team_type', teamType);
     if (conference) params.set('conference', conference);
     if (state) params.set('state', state);
-    if (sort) params.set('sort', sort);
     if (disciplines.length) params.set('disciplines', disciplines.join(','));
     if (lat !== null && lng !== null) {
       params.set('lat', String(lat));
@@ -134,7 +132,7 @@ export default function HomePage() {
       params.set('radius', String(radius));
     }
     return params.toString();
-  }, [q, teamType, conference, state, sort, disciplines, lat, lng, radius]);
+  }, [q, teamType, conference, state, disciplines, lat, lng, radius]);
 
   useEffect(() => {
     apiFetch<School[]>(`/schools/?${queryString}`)
@@ -161,7 +159,6 @@ export default function HomePage() {
       setLat(position.coords.latitude);
       setLng(position.coords.longitude);
       setRadius(100);
-      setSort('distance');
     });
   };
 
@@ -170,7 +167,6 @@ export default function HomePage() {
     setTeamType('');
     setConference('');
     setState('');
-    setSort('relevance');
     setDisciplines([]);
     setLat(null);
     setLng(null);
@@ -439,28 +435,6 @@ export default function HomePage() {
 
           <div className='floating-actions'>
             <span className='sort-label'>Pins visible: {mapPinCount}</span>
-            <span className='sort-label'>Sort:</span>
-            <button
-              type='button'
-              className={`filter-link ${sort === 'relevance' ? 'active' : ''}`}
-              onClick={() => setSort('relevance')}
-            >
-              Relevance
-            </button>
-            <button
-              type='button'
-              className={`filter-link ${sort === 'distance' ? 'active' : ''}`}
-              onClick={() => setSort('distance')}
-            >
-              Distance
-            </button>
-            <button
-              type='button'
-              className={`filter-link ${sort === 'alphabetical' ? 'active' : ''}`}
-              onClick={() => setSort('alphabetical')}
-            >
-              A-Z
-            </button>
             <div className='floating-actions-right'>
               <button type='button' className='filter-link' onClick={toggleFavoritesOnMap}>
                 {favoritesOnly ? 'Show All Schools' : 'Show My Favorites'}
