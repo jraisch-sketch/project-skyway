@@ -119,6 +119,7 @@ class School(models.Model):
     mtb_downhill = models.BooleanField(default=False)
     mtb_slalom = models.BooleanField(default=False)
     cyclocross = models.BooleanField(default=False)
+    track = models.BooleanField(default=False)
     cycling_program_status = models.CharField(
         max_length=20,
         choices=CyclingProgramStatus.choices,

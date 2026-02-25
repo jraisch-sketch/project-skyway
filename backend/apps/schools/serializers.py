@@ -32,7 +32,11 @@ class SchoolListSerializer(serializers.ModelSerializer):
             'mtb_downhill',
             'mtb_slalom',
             'cyclocross',
+            'track',
             'cycling_program_status',
+            'school_website',
+            'athletic_dept_website',
+            'cycling_website',
             'logo',
         )
 
@@ -87,6 +91,7 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
             'mtb_downhill',
             'mtb_slalom',
             'cyclocross',
+            'track',
             'cycling_program_status',
             'head_coach',
             'instagram',

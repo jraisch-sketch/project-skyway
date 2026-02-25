@@ -1,16 +1,49 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { getDisciplineLabels } from '@/lib/disciplines';
+import { slugify } from '@/lib/seo';
 import type { FavoriteSchool } from '@/lib/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+
+type SortKey =
+  | 'school'
+  | 'location'
+  | 'teamType'
+  | 'conference'
+  | 'disciplines'
+  | 'dateAdded';
+
+type SortDirection = 'asc' | 'desc';
+
+function getSortableValue(favorite: FavoriteSchool, key: SortKey): string | number {
+  switch (key) {
+    case 'school':
+      return favorite.school.name || '';
+    case 'location':
+      return [favorite.school.city, favorite.school.state].filter(Boolean).join(', ');
+    case 'teamType':
+      return favorite.school.team_type || '';
+    case 'conference':
+      return favorite.school.conference || '';
+    case 'disciplines':
+      return getDisciplineLabels(favorite.school).join(', ');
+    case 'dateAdded':
+      return new Date(favorite.created_at).getTime();
+    default:
+      return '';
+  }
+}
 
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<FavoriteSchool[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('dateAdded');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   useEffect(() => {
     const token = localStorage.getItem('skyway_access');
@@ -41,6 +74,37 @@ export default function FavoritesPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const sortedFavorites = useMemo(() => {
+    return [...favorites].sort((a, b) => {
+      const aValue = getSortableValue(a, sortKey);
+      const bValue = getSortableValue(b, sortKey);
+      const direction = sortDirection === 'asc' ? 1 : -1;
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return (aValue - bValue) * direction;
+      }
+
+      return String(aValue).localeCompare(String(bValue), undefined, { sensitivity: 'base' }) * direction;
+    });
+  }, [favorites, sortDirection, sortKey]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((currentDirection) => (currentDirection === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+
+    setSortKey(key);
+    setSortDirection('asc');
+  };
+
+  const sortIndicator = (key: SortKey): string => {
+    if (sortKey !== key) {
+      return '';
+    }
+    return sortDirection === 'asc' ? ' (A-Z)' : ' (Z-A)';
+  };
+
   return (
     <section className='panel'>
       <h1>My Favorite Schools</h1>
@@ -50,16 +114,63 @@ export default function FavoritesPage() {
         <p>No favorites yet. Go back to <Link href='/'>Search</Link> and add a school.</p>
       )}
       {!loading && !error && favorites.length > 0 && (
-        <div className='results-scroll' style={{ maxHeight: 'unset', overflow: 'visible', padding: 0 }}>
-          {favorites.map((favorite) => (
-            <article className='school-card' key={favorite.id}>
-              <h3>{favorite.school.name}</h3>
-              <p>{[favorite.school.city, favorite.school.state].filter(Boolean).join(', ') || 'City/State N/A'}</p>
-              <p>Team Type: {favorite.school.team_type || 'N/A'}</p>
-              <p>Conference: {favorite.school.conference || 'N/A'}</p>
-              <p>Saved: {new Date(favorite.created_at).toLocaleDateString()}</p>
-            </article>
-          ))}
+        <div className='favorites-table-wrap'>
+          <table className='favorites-table'>
+            <thead>
+              <tr>
+                <th><button type='button' className='favorites-sort-button' onClick={() => toggleSort('school')}>School{sortIndicator('school')}</button></th>
+                <th><button type='button' className='favorites-sort-button' onClick={() => toggleSort('location')}>City/State{sortIndicator('location')}</button></th>
+                <th><button type='button' className='favorites-sort-button' onClick={() => toggleSort('teamType')}>Team Type{sortIndicator('teamType')}</button></th>
+                <th><button type='button' className='favorites-sort-button' onClick={() => toggleSort('conference')}>Conference{sortIndicator('conference')}</button></th>
+                <th><button type='button' className='favorites-sort-button' onClick={() => toggleSort('disciplines')}>Discipline tags{sortIndicator('disciplines')}</button></th>
+                <th><button type='button' className='favorites-sort-button' onClick={() => toggleSort('dateAdded')}>Date Added as favorite{sortIndicator('dateAdded')}</button></th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedFavorites.map((favorite) => {
+                const disciplineLabels = getDisciplineLabels(favorite.school);
+
+                return (
+                  <tr key={favorite.id}>
+                    <td>
+                      <Link
+                        href={`/schools/cycling-program/${favorite.school.id}/${slugify(favorite.school.name)}`}
+                        className='favorites-school-name'
+                      >
+                        {favorite.school.name}
+                      </Link>
+                      <div className='favorites-school-links'>
+                        {favorite.school.school_website && (
+                          <a href={favorite.school.school_website} target='_blank' rel='noreferrer'>School</a>
+                        )}
+                        {favorite.school.athletic_dept_website && (
+                          <a href={favorite.school.athletic_dept_website} target='_blank' rel='noreferrer'>Athletics</a>
+                        )}
+                        {favorite.school.cycling_website && (
+                          <a href={favorite.school.cycling_website} target='_blank' rel='noreferrer'>Cycling</a>
+                        )}
+                      </div>
+                    </td>
+                    <td>{[favorite.school.city, favorite.school.state].filter(Boolean).join(', ') || 'N/A'}</td>
+                    <td>{favorite.school.team_type || 'N/A'}</td>
+                    <td>{favorite.school.conference || 'N/A'}</td>
+                    <td>
+                      <div className='discipline-chips'>
+                        {disciplineLabels.length > 0 ? (
+                          disciplineLabels.map((label) => (
+                            <span key={`${favorite.id}-${label}`} className='chip'>{label}</span>
+                          ))
+                        ) : (
+                          <span className='chip muted-chip'>No discipline data</span>
+                        )}
+                      </div>
+                    </td>
+                    <td>{new Date(favorite.created_at).toLocaleDateString()}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </section>

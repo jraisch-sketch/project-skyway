@@ -4,16 +4,17 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import CmsBlocks from '@/components/CmsBlocks';
 import { apiFetch } from '@/lib/api';
 import { DISCIPLINE_LABELS, getDisciplineLabels } from '@/lib/disciplines';
 import { slugify } from '@/lib/seo';
-import type { CmsWidgetPlacement, ConferenceSummary, FilterOptions, School, SchoolDetail } from '@/lib/types';
+import type { FilterOptions, School, SchoolDetail } from '@/lib/types';
 
 const SchoolMap = dynamic(() => import('@/components/SchoolMap'), { ssr: false });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
 const disciplineChoices = Object.keys(DISCIPLINE_LABELS);
+
+type ActiveTab = 'list' | 'map';
 
 function formatProfileValue(value: string): string {
   if (!value) return 'N/A';
@@ -22,9 +23,10 @@ function formatProfileValue(value: string): string {
     .replace(/\b\w/g, (ch) => ch.toUpperCase());
 }
 
-export default function HomePage() {
+export default function BrowseCyclingCollegesPage() {
   const [schools, setSchools] = useState<School[]>([]);
   const [filters, setFilters] = useState<FilterOptions | null>(null);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('list');
   const [q, setQ] = useState('');
   const [teamType, setTeamType] = useState('');
   const [conference, setConference] = useState('');
@@ -36,7 +38,6 @@ export default function HomePage() {
   const [popupSchoolId, setPopupSchoolId] = useState<number | null>(null);
   const [popupRequestId, setPopupRequestId] = useState(0);
   const [disciplineMenuOpen, setDisciplineMenuOpen] = useState(false);
-  const [resultsOpen, setResultsOpen] = useState(true);
   const [detailSchoolId, setDetailSchoolId] = useState<number | null>(null);
   const [detailSchool, setDetailSchool] = useState<SchoolDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -45,27 +46,12 @@ export default function HomePage() {
   const [favoriteStatus, setFavoriteStatus] = useState('');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favoriteSchoolIds, setFavoriteSchoolIds] = useState<number[]>([]);
-  const [mapMaximized, setMapMaximized] = useState(false);
-  const [conferenceRows, setConferenceRows] = useState<ConferenceSummary[]>([]);
-  const [homeWidgets, setHomeWidgets] = useState<CmsWidgetPlacement[]>([]);
   const disciplineMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     apiFetch<FilterOptions>('/filters/')
       .then(setFilters)
       .catch((error) => console.error(error));
-  }, []);
-
-  useEffect(() => {
-    apiFetch<ConferenceSummary[]>('/conferences/')
-      .then(setConferenceRows)
-      .catch((error) => console.error(error));
-  }, []);
-
-  useEffect(() => {
-    apiFetch<CmsWidgetPlacement[]>('/cms/widgets/?route_path=/')
-      .then(setHomeWidgets)
-      .catch(() => setHomeWidgets([]));
   }, []);
 
   useEffect(() => {
@@ -99,10 +85,6 @@ export default function HomePage() {
   useEffect(() => {
     const onEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (mapMaximized) {
-          setMapMaximized(false);
-          return;
-        }
         setDetailSchoolId(null);
         setDetailSchool(null);
         setDetailError('');
@@ -110,14 +92,7 @@ export default function HomePage() {
     };
     window.addEventListener('keydown', onEscape);
     return () => window.removeEventListener('keydown', onEscape);
-  }, [mapMaximized]);
-
-  useEffect(() => {
-    document.body.style.overflow = mapMaximized ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mapMaximized]);
+  }, []);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -304,7 +279,7 @@ export default function HomePage() {
     return getDisciplineLabels(detailSchool);
   }, [detailSchool]);
 
-  const mapSchools = useMemo(() => {
+  const tabSchools = useMemo(() => {
     if (!favoritesOnly) {
       return schools;
     }
@@ -314,216 +289,201 @@ export default function HomePage() {
 
   const mapPinCount = useMemo(
     () =>
-      mapSchools.filter((school) => {
+      tabSchools.filter((school) => {
         if (school.latitude === null || school.longitude === null) {
           return false;
         }
-        const lat = Number(school.latitude);
-        const lng = Number(school.longitude);
-        return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+        const schoolLat = Number(school.latitude);
+        const schoolLng = Number(school.longitude);
+        return Number.isFinite(schoolLat) && Number.isFinite(schoolLng) && schoolLat >= -90 && schoolLat <= 90 && schoolLng >= -180 && schoolLng <= 180;
       }).length,
-    [mapSchools]
+    [tabSchools]
   );
 
   return (
-    <>
-      {homeWidgets.length ? (
-        <section className='cms-home-widgets'>
-          {homeWidgets.map((placement) => (
-            <article key={placement.id} className='panel cms-home-widget'>
-              {placement.widget.title ? <h2>{placement.widget.title}</h2> : null}
-              <CmsBlocks blocks={placement.widget.body || []} />
-            </article>
-          ))}
-        </section>
-      ) : null}
-      <div className={`map-first-shell ${mapMaximized ? 'map-maximized' : ''}`}>
-      <div className='map-canvas'>
-        {mapMaximized && (
-          <button
-            type='button'
-            className='map-max-close'
-            onClick={() => setMapMaximized(false)}
-          >
-            X Minimize map
+    <section className='browse-cycling-shell'>
+      <aside className='browse-cycling-nav panel'>
+        <h1>Browse Cycling Colleges</h1>
+        <p>Filter schools and switch between list and map views.</p>
+
+        <label className='filter-field keyword-filter'>
+          <span>Keyword Search</span>
+          <input
+            placeholder='School, city, state'
+            value={q}
+            onChange={(event) => setQ(event.target.value)}
+          />
+        </label>
+
+        <div className='browse-filters'>
+          <label className='filter-field'>
+            <span>Team Type</span>
+            <select value={teamType} onChange={(event) => setTeamType(event.target.value)}>
+              <option value=''>All Team Types</option>
+              {filters?.team_types.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className='filter-field'>
+            <span>USAC Conference</span>
+            <select value={conference} onChange={(event) => setConference(event.target.value)}>
+              <option value=''>All USAC Conferences</option>
+              {filters?.conferences.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className='filter-field'>
+            <span>State</span>
+            <select value={state} onChange={(event) => setState(event.target.value)}>
+              <option value=''>All States</option>
+              {filters?.states.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className='filter-field'>
+            <span>Disciplines</span>
+            <div className='multi-dropdown' ref={disciplineMenuRef}>
+              <button
+                type='button'
+                className='multi-dropdown-trigger'
+                onClick={() => setDisciplineMenuOpen((prev) => !prev)}
+              >
+                {disciplines.length > 0
+                  ? `Selected (${disciplines.length})`
+                  : 'Disciplines'}
+              </button>
+              {disciplineMenuOpen && (
+                <div className='multi-dropdown-menu'>
+                  {disciplineChoices.map((item) => (
+                    <label key={item} className='multi-dropdown-item'>
+                      <input
+                        type='checkbox'
+                        checked={disciplines.includes(item)}
+                        onChange={() =>
+                          setDisciplines((prev) =>
+                            prev.includes(item)
+                              ? prev.filter((value) => value !== item)
+                              : [...prev, item]
+                          )
+                        }
+                      />
+                      <span>{DISCIPLINE_LABELS[item]}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className='browse-nav-actions'>
+          <button type='button' className='filter-link' onClick={detectLocation}>
+            Use my location
           </button>
-        )}
-        <SchoolMap
-          schools={mapSchools}
-          userLocation={lat !== null && lng !== null ? [lat, lng] : null}
-          radiusMiles={radius}
-          popupSchoolId={popupSchoolId}
-          popupRequestId={popupRequestId}
-          mapHeight='100%'
-          onRequestSchoolDetail={openSchoolDetail}
-          onUseMyLocation={detectLocation}
-          onToggleMaximize={() => setMapMaximized((prev) => !prev)}
-          isMaximized={mapMaximized}
-        />
+          <button type='button' className='filter-link' onClick={toggleFavoritesOnMap}>
+            {favoritesOnly ? 'Show All Schools' : 'Show My Favorites'}
+          </button>
+          <button type='button' className='filter-link' onClick={clearFilters}>
+            Clear Filters
+          </button>
+          {favoriteStatus && <p className='auth-error'>{favoriteStatus}</p>}
+        </div>
+      </aside>
 
-        <section className='floating-toolbar'>
-          <div className='filters map-first-filters'>
-            <label className='filter-field'>
-              <span>Keyword</span>
-              <input
-                placeholder='School, city, state'
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-              />
-            </label>
-            <label className='filter-field'>
-              <span>Team Type</span>
-              <select value={teamType} onChange={(e) => setTeamType(e.target.value)}>
-                <option value=''>All Team Types</option>
-                {filters?.team_types.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className='filter-field'>
-              <span>USAC Conference</span>
-              <select value={conference} onChange={(e) => setConference(e.target.value)}>
-                <option value=''>All USAC Conferences</option>
-                {filters?.conferences.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className='filter-field'>
-              <span>State</span>
-              <select value={state} onChange={(e) => setState(e.target.value)}>
-                <option value=''>All States</option>
-                {filters?.states.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className='filter-field'>
-              <span>Disciplines</span>
-              <div className='multi-dropdown' ref={disciplineMenuRef}>
-                <button
-                  type='button'
-                  className='multi-dropdown-trigger'
-                  onClick={() => setDisciplineMenuOpen((prev) => !prev)}
-                >
-                  {disciplines.length > 0
-                    ? `Selected (${disciplines.length})`
-                    : 'Disciplines'}
-                </button>
-                {disciplineMenuOpen && (
-                  <div className='multi-dropdown-menu'>
-                    {disciplineChoices.map((item) => (
-                      <label key={item} className='multi-dropdown-item'>
-                        <input
-                          type='checkbox'
-                          checked={disciplines.includes(item)}
-                          onChange={() =>
-                            setDisciplines((prev) =>
-                              prev.includes(item)
-                                ? prev.filter((value) => value !== item)
-                                : [...prev, item]
-                            )
-                          }
-                        />
-                        <span>{DISCIPLINE_LABELS[item]}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className='floating-actions'>
-            <span className='sort-label'>Pins visible: {mapPinCount}</span>
-            <div className='floating-actions-right'>
-              <button type='button' className='filter-link' onClick={toggleFavoritesOnMap}>
-                {favoritesOnly ? 'Show All Schools' : 'Show My Favorites'}
-              </button>
-              <button type='button' className='filter-link' onClick={clearFilters}>
-                Clear Filters
-              </button>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <aside className={`results-drawer ${resultsOpen ? 'open' : 'collapsed'}`}>
-        <div className='results-head'>
-          <strong>Results ({schools.length})</strong>
+      <div className='browse-cycling-content panel'>
+        <div className='browse-tabs'>
           <button
             type='button'
-            className='drawer-toggle'
-            onClick={() => setResultsOpen((prev) => !prev)}
+            className={`browse-tab ${activeTab === 'list' ? 'active' : ''}`}
+            onClick={() => setActiveTab('list')}
           >
-            {resultsOpen ? 'Hide' : 'Show'}
+            List View ({tabSchools.length})
+          </button>
+          <button
+            type='button'
+            className={`browse-tab ${activeTab === 'map' ? 'active' : ''}`}
+            onClick={() => setActiveTab('map')}
+          >
+            Map View (Pins {mapPinCount})
           </button>
         </div>
 
-        {resultsOpen && (
-          <div className='results-scroll'>
-            {favoriteStatus && <p className='auth-error'>{favoriteStatus}</p>}
-            {schools.map((school) => (
-              <article className='school-card' key={school.id}>
-                <h3>{school.name}</h3>
-                <p>{[school.city, school.state].filter(Boolean).join(', ') || 'City/State N/A'}</p>
-                <p>Team Type: {school.team_type || 'N/A'}</p>
-                <p>Conference: {school.conference || 'N/A'}</p>
-                <p>Cycling Program Status: {school.cycling_program_status || 'active'}</p>
-                <div className='discipline-chips'>
-                  {getDisciplineLabels(school).length > 0 ? (
-                    getDisciplineLabels(school).map((label) => (
-                      <span key={label} className='chip'>{label}</span>
-                    ))
-                  ) : (
-                    <span className='chip muted-chip'>No discipline data</span>
-                  )}
-                </div>
-                <button
-                  type='button'
-                  className='list-card-link'
-                  onClick={() => {
-                    setPopupSchoolId(school.id);
-                    setPopupRequestId((prev) => prev + 1);
-                  }}
-                >
-                  Show on map
-                </button>
-                <br />
-                <button
-                  type='button'
-                  className='list-card-link'
-                  onClick={() => openSchoolDetail(school.id)}
-                >
-                  View details
-                </button>
-                <br />
-                <button
-                  type='button'
-                  className='list-card-link'
-                  onClick={() => addToFavorites(school.id)}
-                >
-                  Add to favorites
-                </button>
-              </article>
-            ))}
-            {schools.length === 0 && <p>No schools matched your current filters.</p>}
+        {activeTab === 'list' ? (
+          <div className='browse-tab-panel'>
+            <div className='results-scroll browse-results-scroll'>
+              {tabSchools.map((school) => (
+                <article className='school-card' key={school.id}>
+                  <h3>{school.name}</h3>
+                  <p>{[school.city, school.state].filter(Boolean).join(', ') || 'City/State N/A'}</p>
+                  <p>Team Type: {school.team_type || 'N/A'}</p>
+                  <p>Conference: {school.conference || 'N/A'}</p>
+                  <p>Cycling Program Status: {school.cycling_program_status || 'active'}</p>
+                  <div className='discipline-chips'>
+                    {getDisciplineLabels(school).length > 0 ? (
+                      getDisciplineLabels(school).map((label) => (
+                        <span key={label} className='chip'>{label}</span>
+                      ))
+                    ) : (
+                      <span className='chip muted-chip'>No discipline data</span>
+                    )}
+                  </div>
+                  <button
+                    type='button'
+                    className='list-card-link'
+                    onClick={() => {
+                      setPopupSchoolId(school.id);
+                      setPopupRequestId((prev) => prev + 1);
+                      setActiveTab('map');
+                    }}
+                  >
+                    Show on map
+                  </button>
+                  <br />
+                  <button
+                    type='button'
+                    className='list-card-link'
+                    onClick={() => openSchoolDetail(school.id)}
+                  >
+                    View details
+                  </button>
+                  <br />
+                  <button
+                    type='button'
+                    className='list-card-link'
+                    onClick={() => addToFavorites(school.id)}
+                  >
+                    Add to favorites
+                  </button>
+                </article>
+              ))}
+              {tabSchools.length === 0 && <p>No schools matched your current filters.</p>}
+            </div>
+          </div>
+        ) : (
+          <div className='browse-tab-panel browse-map-panel'>
+            <SchoolMap
+              schools={tabSchools}
+              userLocation={lat !== null && lng !== null ? [lat, lng] : null}
+              radiusMiles={radius}
+              popupSchoolId={popupSchoolId}
+              popupRequestId={popupRequestId}
+              mapHeight='68vh'
+              onRequestSchoolDetail={openSchoolDetail}
+              onUseMyLocation={detectLocation}
+            />
           </div>
         )}
-      </aside>
-      <button
-        type='button'
-        className='mobile-drawer-button'
-        onClick={() => setResultsOpen((prev) => !prev)}
-      >
-        {resultsOpen ? 'Hide Results' : `Show Results (${schools.length})`}
-      </button>
+      </div>
+
       {detailSchoolId !== null && (
         <div className='school-overlay-backdrop' onClick={closeSchoolDetail}>
           <section className='school-overlay-panel' onClick={(event) => event.stopPropagation()}>
@@ -636,37 +596,6 @@ export default function HomePage() {
           </section>
         </div>
       )}
-      </div>
-      <section className='panel page-panel conference-table-panel'>
-        <h2>Cycling Conferences</h2>
-        <div className='conference-table-wrap'>
-          <table className='conference-table'>
-            <thead>
-              <tr>
-                <th>Long Name</th>
-                <th>Acronym</th>
-                <th>Teams</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {conferenceRows.map((conference) => (
-                <tr key={conference.id}>
-                  <td>{conference.long_name || conference.name}</td>
-                  <td>{conference.acronym || 'N/A'}</td>
-                  <td>{conference.team_count ?? 0}</td>
-                  <td>{conference.description || 'No description provided.'}</td>
-                </tr>
-              ))}
-              {conferenceRows.length === 0 && (
-                <tr>
-                  <td colSpan={4}>No conferences available.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </>
+    </section>
   );
 }

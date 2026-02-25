@@ -1,11 +1,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useState } from 'react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const params = useSearchParams();
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -35,5 +36,13 @@ export default function ResetPasswordPage() {
       <button type='submit'>Update Password</button>
       {message && <p>{message}</p>}
     </form>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<section className='panel'><p>Loading...</p></section>}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

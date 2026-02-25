@@ -89,6 +89,7 @@ def import_schools_from_csv(file_obj):
                 'mtb_enduro': parse_bool(row.get('MTB Enduro', '')),
                 'mtb_downhill': parse_bool(row.get('MTB Downhill', '')),
                 'mtb_slalom': parse_bool(row.get('MTB Slalom', '')),
+                'track': parse_bool(row.get('Track', '')),
                 'head_coach': row.get('Head Coach', ''),
                 'instagram': row.get('Instagram', ''),
                 'facebook': row.get('Facebook', ''),

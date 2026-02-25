@@ -8,6 +8,7 @@ export const DISCIPLINE_LABELS: Record<string, string> = {
   mtb_downhill: 'MTB Downhill',
   mtb_slalom: 'MTB Slalom',
   cyclocross: 'Cyclocross',
+  track: 'Track',
 };
 
 const DISCIPLINE_KEYS = Object.keys(DISCIPLINE_LABELS) as Array<keyof School>;

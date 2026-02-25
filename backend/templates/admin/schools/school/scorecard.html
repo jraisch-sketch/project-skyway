@@ -12,6 +12,7 @@
       <tr>
         <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Metric</th>
         <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">Count</th>
+        <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">Was</th>
         <th style="text-align:right; border-bottom:1px solid #ddd; padding:8px;">Percent</th>
         <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Description</th>
         <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Link</th>
@@ -22,6 +23,7 @@
         <tr>
           <td style="padding:8px; border-bottom:1px solid #eee;">{{ row.label }}</td>
           <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">{{ row.count }}</td>
+          <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">{% if row.was_count %}{{ row.was_count }}{% else %}-{% endif %}</td>
           <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">{{ row.pct }}%</td>
           <td style="padding:8px; border-bottom:1px solid #eee;">{{ row.description }}</td>
           <td style="padding:8px; border-bottom:1px solid #eee;">

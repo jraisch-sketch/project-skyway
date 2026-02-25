@@ -1,11 +1,11 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
-export default function VerifyEmailPage() {
+function VerifyEmailPageContent() {
   const params = useSearchParams();
   const [message, setMessage] = useState('Verifying...');
 
@@ -35,5 +35,13 @@ export default function VerifyEmailPage() {
       <h1>Email Verification</h1>
       <p>{message}</p>
     </section>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<section className='panel'><p>Loading...</p></section>}>
+      <VerifyEmailPageContent />
+    </Suspense>
   );
 }

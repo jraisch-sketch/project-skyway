@@ -3,6 +3,9 @@ export type School = {
   name: string;
   team_type: string;
   conference: string;
+  school_website: string;
+  athletic_dept_website: string;
+  cycling_website: string;
   city: string;
   state: string;
   latitude: number | null;
@@ -14,6 +17,7 @@ export type School = {
   mtb_downhill: boolean;
   mtb_slalom: boolean;
   cyclocross: boolean;
+  track: boolean;
   cycling_program_status: string;
   logo: string | null;
 };

@@ -22,6 +22,7 @@ DISCIPLINE_FIELD_MAP = {
     'mtb_downhill': 'mtb_downhill',
     'mtb_slalom': 'mtb_slalom',
     'cyclocross': 'cyclocross',
+    'track': 'track',
 }
 
 

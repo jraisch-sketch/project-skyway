@@ -978,6 +978,66 @@ h2 {
   z-index: 1;
 }
 
+.favorites-table-wrap {
+  overflow-x: auto;
+}
+
+.favorites-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1260px;
+}
+
+.favorites-table th,
+.favorites-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.62rem 0.72rem;
+  border-bottom: 1px solid rgba(86, 112, 154, 0.5);
+  font-size: 0.87rem;
+}
+
+.favorites-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: #e9f1ff;
+  background: linear-gradient(180deg, rgba(27, 44, 72, 0.97), rgba(20, 34, 57, 0.97));
+}
+
+.favorites-table td {
+  color: #2b4566;
+}
+
+.favorites-sort-button {
+  border: 0;
+  background: transparent;
+  color: #e9f1ff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.favorites-sort-button:hover {
+  color: #9ac2fb;
+}
+
+.favorites-school-name {
+  display: inline-block;
+  margin-bottom: 0.28rem;
+  font-weight: 600;
+}
+
+.favorites-school-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.65rem;
+  font-size: 0.82rem;
+}
+
 .school-overlay-backdrop {
   position: fixed;
   inset: 0;
@@ -1064,6 +1124,30 @@ h2 {
 .school-overlay-content p {
   margin: 0.18rem 0;
   color: #bdd0ec;
+}
+
+.school-overlay-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.3rem;
+}
+
+.school-overlay-table th,
+.school-overlay-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.34rem 0;
+  border-bottom: 1px solid rgba(109, 140, 190, 0.24);
+}
+
+.school-overlay-table th {
+  width: 42%;
+  color: #a8bfdc;
+  font-weight: 600;
+}
+
+.school-overlay-table td {
+  color: #d6e6fb;
 }
 
 .school-overlay-links {
@@ -1617,6 +1701,15 @@ body > main.container {
   --skyway-steel-100: #eef3f9;
   --skyway-steel-200: #dde6f1;
   --skyway-steel-300: #c7d3e3;
+  --skyway-text-primary: #1f3653;
+  --skyway-text-secondary: #4a6281;
+  --skyway-text-muted: #5f7591;
+  --text: #1f3653;
+  --muted: #5f7591;
+  --title: #0f172a;
+  --line: #c7d3e3;
+  --panel: #ffffff;
+  --brand: #1f6feb;
 }
 
 body {
@@ -1748,23 +1841,6 @@ body {
   position: relative;
 }
 
-.footer-inner::before {
-  content: '';
-  position: absolute;
-  top: -0.75rem;
-  left: 0;
-  width: 120px;
-  height: 10px;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      #111827 0 8px,
-      #ffffff 8px 16px
-    );
-  opacity: 0.22;
-  border-radius: 2px;
-}
-
 .footer-inner {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -1809,6 +1885,13 @@ body {
 
 .footer-disclaimer a {
   color: #1f6feb;
+}
+
+.footer-copyright {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
+  color: #5f7591;
+  font-size: 0.8rem;
 }
 
 @media (max-width: 700px) {
@@ -2112,4 +2195,136 @@ body {
   .cms-layout {
     grid-template-columns: 1fr;
   }
+}
+
+/* Browse Cycling Colleges */
+.browse-cycling-shell {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.browse-cycling-nav {
+  position: sticky;
+  top: 86px;
+}
+
+.browse-cycling-nav h1 {
+  margin: 0 0 0.35rem;
+}
+
+.browse-cycling-nav p {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
+.keyword-filter {
+  margin-bottom: 0.8rem;
+}
+
+.browse-filters {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.browse-filters input,
+.browse-filters select,
+.keyword-filter input {
+  width: 100%;
+  padding: 0.44rem 0.62rem;
+  border: 1px solid rgba(96, 121, 161, 0.58);
+  border-radius: 10px;
+  font: inherit;
+  background: rgba(13, 24, 43, 0.95);
+  color: #e4edfa;
+}
+
+.keyword-filter input::placeholder {
+  color: #8ea2c4;
+}
+
+.browse-nav-actions {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  align-items: center;
+}
+
+.browse-cycling-content {
+  min-height: 74vh;
+}
+
+.browse-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.browse-tab {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.browse-tab.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.browse-tab-panel {
+  min-height: 62vh;
+}
+
+.browse-map-panel .map-wrap {
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.browse-results-scroll {
+  max-height: 66vh;
+}
+
+@media (max-width: 1024px) {
+  .browse-cycling-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .browse-cycling-nav {
+    position: static;
+  }
+
+  .browse-results-scroll {
+    max-height: none;
+  }
+}
+
+/* Readability guardrail: keep text contrast strong on light surfaces */
+.school-card p,
+.sort-label,
+.filter-field > span,
+.auth-note,
+.toc-muted,
+.legend-item,
+.school-overlay-content p,
+.browse-cycling-nav p {
+  color: var(--skyway-text-secondary);
+}
+
+.school-overlay-head strong,
+.school-overlay-table th {
+  color: var(--skyway-text-secondary);
+}
+
+.conference-table td,
+.favorites-table td,
+.school-overlay-table td,
+.toc-list li {
+  color: var(--skyway-text-primary);
 }

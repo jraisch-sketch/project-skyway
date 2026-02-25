@@ -72,10 +72,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <span>YJR Outdoors</span>
             </div>
             <p className="footer-disclaimer">
-              This site is not endorsed by USA Cycling. Information is sourced from public
-              information sources. Contact YJR Outdoors with corrections.{' '}
-              <a href="mailto:info@yjroutdoors.com">info@yjroutdoors.com</a>
+              Data shown on this site is aggregated from publicly available sources and automated enrichment
+              services. Sources include institutional websites, public webpages, USA Cycling public materials,
+              NCES/IPEDS datasets (ArcGIS), OpenStreetMap Nominatim, and the U.S. Department of Education
+              College Scorecard API (Data.gov). Information is periodically refreshed and may not reflect the
+              latest changes.
             </p>
+            <p className="footer-copyright">Copyright YJR Outdoors LLC</p>
           </div>
         </footer>
       </body>

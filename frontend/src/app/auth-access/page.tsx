@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useState } from 'react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
@@ -18,7 +19,7 @@ function normalizeApiError(data: unknown, fallback: string): string {
     .join(' ') || fallback;
 }
 
-export default function AuthAccessPage() {
+function AuthAccessPageContent() {
   const params = useSearchParams();
   const schoolId = params.get('school_id');
   const currentYear = new Date().getFullYear();
@@ -230,5 +231,13 @@ export default function AuthAccessPage() {
         </form>
       </div>
     </section>
+  );
+}
+
+export default function AuthAccessPage() {
+  return (
+    <Suspense fallback={<section className='panel'><p>Loading...</p></section>}>
+      <AuthAccessPageContent />
+    </Suspense>
   );
 }

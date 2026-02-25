@@ -178,6 +178,7 @@ class SchoolAdmin(admin.ModelAdmin):
         'road',
         'mtb_xc',
         'cyclocross',
+        'track',
         'geocode_status',
         'geocode_needs_review',
     )
@@ -258,6 +259,14 @@ class SchoolAdmin(admin.ModelAdmin):
 
     def scorecard_view(self, request: HttpRequest):
         total = School.objects.count()
+        scorecard_baselines = {
+            'Missing Locale': 4,
+            'Missing Enrollment': 252,
+            'Missing Acceptance Rate': 252,
+            'Missing Graduation Rate': 252,
+            'Unknown Institution Control': 252,
+            'Unknown Institution Level': 252,
+        }
         duplicate_unitids = list(
             School.objects.exclude(nces_unitid='')
             .values('nces_unitid')
@@ -349,6 +358,7 @@ class SchoolAdmin(admin.ModelAdmin):
 
         for item in stats:
             item['pct'] = round((item['count'] / total * 100), 1) if total else 0.0
+            item['was_count'] = scorecard_baselines.get(item['label'])
 
         context = dict(
             self.admin_site.each_context(request),

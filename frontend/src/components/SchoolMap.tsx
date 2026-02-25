@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-import { Circle, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Circle, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
 import { colorForConference, CONFERENCE_COLORS } from '@/lib/conferenceColors';
@@ -16,31 +16,57 @@ const userMarkerIcon = L.icon({
 });
 
 const markerCache = new Map<string, L.Icon>();
+
+const BASE_PIN_WIDTH = 13;
+const BASE_PIN_HEIGHT = 21;
+const BASE_PIN_ANCHOR_X = 6;
+const BASE_PIN_ANCHOR_Y = 20;
+const BASE_PIN_POPUP_OFFSET_Y = -18;
+
+function markerScaleForZoom(zoom: number): number {
+  if (zoom >= 10) return 1.35;
+  if (zoom >= 8) return 1.2;
+  if (zoom >= 6) return 1.1;
+  return 1.0;
+}
 type MappableSchool = {
   school: School;
   lat: number;
   lng: number;
 };
 
-function conferenceMarkerIcon(color: string): L.Icon {
-  if (markerCache.has(color)) {
-    return markerCache.get(color) as L.Icon;
+function conferenceMarkerIcon(color: string, scale: number): L.Icon {
+  const width = Math.round(BASE_PIN_WIDTH * scale);
+  const height = Math.round(BASE_PIN_HEIGHT * scale);
+  const anchorX = Math.round(BASE_PIN_ANCHOR_X * scale);
+  const anchorY = Math.round(BASE_PIN_ANCHOR_Y * scale);
+  const popupOffsetY = Math.round(BASE_PIN_POPUP_OFFSET_Y * scale);
+  const cacheKey = `${color}-${width}-${height}`;
+
+  if (markerCache.has(cacheKey)) {
+    return markerCache.get(cacheKey) as L.Icon;
   }
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="21" viewBox="0 0 26 42">
-      <path d="M13 1C6.373 1 1 6.373 1 13c0 8.967 12 28 12 28s12-19.033 12-28C25 6.373 19.627 1 13 1z" fill="${color}" stroke="#ffffff" stroke-width="1.8"/>
-      <circle cx="13" cy="13" r="3.8" fill="#ffffff"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 26 42">
+      <defs>
+        <filter id="pin-shadow" x="-80%" y="-80%" width="260%" height="260%">
+          <feDropShadow dx="0" dy="1.2" stdDeviation="1.1" flood-color="#0f172a" flood-opacity="0.52"/>
+        </filter>
+      </defs>
+      <path d="M13 1C6.373 1 1 6.373 1 13c0 8.967 12 28 12 28s12-19.033 12-28C25 6.373 19.627 1 13 1z" fill="none" stroke="#ffffff" stroke-width="3.2"/>
+      <path d="M13 1C6.373 1 1 6.373 1 13c0 8.967 12 28 12 28s12-19.033 12-28C25 6.373 19.627 1 13 1z" fill="${color}" stroke="#17314f" stroke-width="1.05" filter="url(#pin-shadow)"/>
+      <circle cx="13" cy="13" r="3.8" fill="#ffffff" stroke="#17314f" stroke-width="0.8"/>
     </svg>
   `.trim();
   const iconUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   const icon = L.icon({
     iconUrl,
-    iconSize: [13, 21],
-    iconAnchor: [6, 20],
-    popupAnchor: [0, -18],
+    iconSize: [width, height],
+    iconAnchor: [anchorX, anchorY],
+    popupAnchor: [0, popupOffsetY],
   });
-  markerCache.set(color, icon);
+  markerCache.set(cacheKey, icon);
   return icon;
 }
 
@@ -127,6 +153,24 @@ function OpenSchoolPopup({
   return null;
 }
 
+function TrackZoomLevel({
+  onZoomChange,
+}: {
+  onZoomChange: (zoom: number) => void;
+}) {
+  const map = useMapEvents({
+    zoomend: () => {
+      onZoomChange(map.getZoom());
+    },
+  });
+
+  useEffect(() => {
+    onZoomChange(map.getZoom());
+  }, [map, onZoomChange]);
+
+  return null;
+}
+
 export default function SchoolMap({
   schools,
   userLocation = null,
@@ -176,11 +220,14 @@ export default function SchoolMap({
       : [41.2, -98.5];
   const zoom = userLocation ? 8 : 3;
   const mapKey = `${center[0]}-${center[1]}-${zoom}`;
+  const [zoomLevel, setZoomLevel] = useState(zoom);
+  const markerScale = markerScaleForZoom(zoomLevel);
 
   return (
     <div className='map-wrap'>
       <MapContainer key={mapKey} center={center} zoom={zoom} scrollWheelZoom zoomControl={false} style={{ height: mapHeight, width: '100%' }}>
         <ZoomControl position='bottomright' />
+        <TrackZoomLevel onZoomChange={setZoomLevel} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -214,7 +261,7 @@ export default function SchoolMap({
           <Marker
             key={`school-${school.id}`}
             position={[lat, lng]}
-            icon={conferenceMarkerIcon(colorForConference(school.conference))}
+            icon={conferenceMarkerIcon(colorForConference(school.conference), markerScale)}
             ref={(leafletMarker) => {
               if (leafletMarker) {
                 markerRefs.current[school.id] = leafletMarker;
