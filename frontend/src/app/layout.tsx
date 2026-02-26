@@ -1,6 +1,7 @@
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 import Link from 'next/link';
+import Script from 'next/script';
 import AccessGate from '@/components/AccessGate';
 import HeaderNav from '@/components/HeaderNav';
 import { serverApiFetch } from '@/lib/serverApi';
@@ -16,6 +17,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const gaMeasurementId = 'G-86S2NCTM2M';
+  const isProductionAnalytics = process.env.NEXT_PUBLIC_ENV === 'production';
   const topNav = await serverApiFetch<CmsNavigation>('/cms/navigations/main-top-nav/');
   const footerNav = await serverApiFetch<CmsNavigation>('/cms/navigations/main-footer-nav/');
   const siteConfig = await serverApiFetch<SiteConfig>('/cms/config/');
@@ -40,6 +43,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
+        {isProductionAnalytics ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} strategy="afterInteractive" />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaMeasurementId}');
+              `}
+            </Script>
+          </>
+        ) : null}
         <AccessGate invitationCodeRequired={invitationCodeRequired} />
         <header className="header">
           <div className="container nav">

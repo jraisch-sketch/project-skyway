@@ -54,6 +54,7 @@ When HTTPS is enabled, include `https://` variants in both CORS/CSRF values.
 
 - [ ] `NEXT_PUBLIC_API_BASE_URL=/api` (same-origin API path on custom domain)
 - [ ] `API_PROXY_TARGET` points to matching backend ALB origin (no trailing slash)
+- [ ] `NEXT_PUBLIC_ENV` is `production` only on production frontend (use `staging` on staging)
 
 Reference values currently observed:
 
