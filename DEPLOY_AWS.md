@@ -82,10 +82,11 @@ In AWS Console:
 1. Go to Amplify -> New app -> Host web app.
 2. Connect your GitHub repo.
 3. Select the frontend app path: `frontend`.
-4. Add environment variable:
+4. Add environment variables:
 
 ```text
-NEXT_PUBLIC_API_BASE_URL=https://<your-app-runner-domain>/api
+NEXT_PUBLIC_API_BASE_URL=/api
+API_PROXY_TARGET=http://<your-backend-alb-dns>
 ```
 
 5. Deploy and copy the Amplify URL.
@@ -118,8 +119,14 @@ After enabling HTTPS, add `https://` variants to both `CORS_ALLOWED_ORIGINS` and
 ## 7. Smoke Test
 
 1. Open frontend URL and confirm school list loads.
-2. Test auth endpoints.
-3. Open backend `/admin` and log in with superuser.
+2. Confirm same-origin API proxy works:
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}\n" https://<your-frontend-domain>/api/filters
+```
+
+3. Test auth endpoints.
+4. Open backend `/admin` and log in with superuser.
 
 If you need a superuser, run once:
 

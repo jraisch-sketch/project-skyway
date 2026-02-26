@@ -52,12 +52,22 @@ When HTTPS is enabled, include `https://` variants in both CORS/CSRF values.
 
 ### Frontend (set separately for staging and prod)
 
-- [ ] `NEXT_PUBLIC_API_BASE_URL` points to matching backend `/api`
+- [ ] `NEXT_PUBLIC_API_BASE_URL=/api` (same-origin API path on custom domain)
+- [ ] `API_PROXY_TARGET` points to matching backend ALB origin (no trailing slash)
 
 Reference values currently observed:
 
-- Staging frontend: `NEXT_PUBLIC_API_BASE_URL=http://skyway-staging-alb-1191650900.us-east-1.elb.amazonaws.com/api`
-- Production frontend: `NEXT_PUBLIC_API_BASE_URL=http://skyway-prod-alb-300389705.us-east-1.elb.amazonaws.com/api`
+- Staging frontend:
+  - `NEXT_PUBLIC_API_BASE_URL=/api`
+  - `API_PROXY_TARGET=http://skyway-staging-alb-1191650900.us-east-1.elb.amazonaws.com`
+- Production frontend:
+  - `NEXT_PUBLIC_API_BASE_URL=/api`
+  - `API_PROXY_TARGET=http://skyway-prod-alb-300389705.us-east-1.elb.amazonaws.com`
+
+SSL + API parity rule:
+- [ ] Frontend ALB keeps `80 -> 443` redirect
+- [ ] Frontend ALB keeps HTTPS listener with ACM cert + TLS policy
+- [ ] `https://<domain>/api/filters` returns `200` in both staging and production
 
 ## 4) Data Separation Rules
 

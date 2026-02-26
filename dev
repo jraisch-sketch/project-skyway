@@ -10,6 +10,8 @@ FRONTEND_PID_FILE="/tmp/skyway-frontend.pid"
 BACKEND_LOG="/tmp/skyway-backend.log"
 FRONTEND_LOG="/tmp/skyway-frontend.log"
 
+# Bind host for development servers. Use BIND_HOST=0.0.0.0 for LAN access.
+BIND_HOST="${BIND_HOST:-127.0.0.1}"
 BACKEND_URL="http://127.0.0.1:8000/api/filters/"
 FRONTEND_URL="http://127.0.0.1:3000"
 
@@ -127,7 +129,7 @@ start_backend() {
     return 1
   fi
 
-  nohup /bin/bash -lc "cd \"$BACKEND_DIR\" && source .venv/bin/activate && exec python manage.py runserver 127.0.0.1:8000" \
+  nohup /bin/bash -lc "cd \"$BACKEND_DIR\" && source .venv/bin/activate && exec python manage.py runserver ${BIND_HOST}:8000" \
     >"$BACKEND_LOG" 2>&1 &
   echo "$!" >"$BACKEND_PID_FILE"
 
@@ -149,7 +151,7 @@ start_frontend() {
 
   ensure_frontend_env
 
-  nohup /bin/bash -lc "cd \"$FRONTEND_DIR\" && exec npm run dev -- -H 127.0.0.1 -p 3000" \
+  nohup /bin/bash -lc "cd \"$FRONTEND_DIR\" && exec npm run dev -- -H ${BIND_HOST} -p 3000" \
     >"$FRONTEND_LOG" 2>&1 &
   echo "$!" >"$FRONTEND_PID_FILE"
 
@@ -193,13 +195,13 @@ status_all() {
   frontend_pid="$(read_pid "$FRONTEND_PID_FILE" || true)"
 
   if pid_is_running "$backend_pid"; then
-    echo "Backend: running (pid $backend_pid) -> http://127.0.0.1:8000"
+    echo "Backend: running (pid $backend_pid) -> http://${BIND_HOST}:8000"
   else
     echo "Backend: stopped"
   fi
 
   if pid_is_running "$frontend_pid"; then
-    echo "Frontend: running (pid $frontend_pid) -> http://127.0.0.1:3000"
+    echo "Frontend: running (pid $frontend_pid) -> http://${BIND_HOST}:3000"
   else
     echo "Frontend: stopped"
   fi
@@ -218,8 +220,8 @@ up_all() {
   start_backend
   start_frontend
   print_header "Ready"
-  echo "Backend:  http://127.0.0.1:8000/api"
-  echo "Frontend: http://127.0.0.1:3000"
+  echo "Backend:  http://${BIND_HOST}:8000/api"
+  echo "Frontend: http://${BIND_HOST}:3000"
 }
 
 down_all() {
