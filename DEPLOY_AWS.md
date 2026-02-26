@@ -99,6 +99,22 @@ In App Runner service env vars, confirm these values use the real Amplify URL:
 
 Then redeploy App Runner.
 
+For custom domains on this project, use explicit comma-separated origins per environment. Example:
+
+```text
+# Staging backend service
+CORS_ALLOWED_ORIGINS=http://skyway-staging.yjroutdoors.com,http://skyway.yjroutdoors.com
+CSRF_TRUSTED_ORIGINS=http://skyway-staging.yjroutdoors.com,http://skyway.yjroutdoors.com
+FRONTEND_URL=http://skyway-staging.yjroutdoors.com
+
+# Production backend service
+CORS_ALLOWED_ORIGINS=http://skyway.yjroutdoors.com,http://skyway-staging.yjroutdoors.com
+CSRF_TRUSTED_ORIGINS=http://skyway.yjroutdoors.com,http://skyway-staging.yjroutdoors.com
+FRONTEND_URL=http://skyway.yjroutdoors.com
+```
+
+After enabling HTTPS, add `https://` variants to both `CORS_ALLOWED_ORIGINS` and `CSRF_TRUSTED_ORIGINS`.
+
 ## 7. Smoke Test
 
 1. Open frontend URL and confirm school list loads.

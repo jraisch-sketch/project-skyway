@@ -37,9 +37,27 @@
 - [ ] `CSRF_TRUSTED_ORIGINS`
 - [ ] `FRONTEND_URL`
 
+Reference values for current domains:
+
+- Staging backend:
+  - `CORS_ALLOWED_ORIGINS=http://skyway-staging.yjroutdoors.com,http://skyway.yjroutdoors.com`
+  - `CSRF_TRUSTED_ORIGINS=http://skyway-staging.yjroutdoors.com,http://skyway.yjroutdoors.com`
+  - `FRONTEND_URL=http://skyway-staging.yjroutdoors.com`
+- Production backend:
+  - `CORS_ALLOWED_ORIGINS=http://skyway.yjroutdoors.com,http://skyway-staging.yjroutdoors.com`
+  - `CSRF_TRUSTED_ORIGINS=http://skyway.yjroutdoors.com,http://skyway-staging.yjroutdoors.com`
+  - `FRONTEND_URL=http://skyway.yjroutdoors.com`
+
+When HTTPS is enabled, include `https://` variants in both CORS/CSRF values.
+
 ### Frontend (set separately for staging and prod)
 
 - [ ] `NEXT_PUBLIC_API_BASE_URL` points to matching backend `/api`
+
+Reference values currently observed:
+
+- Staging frontend: `NEXT_PUBLIC_API_BASE_URL=http://skyway-staging-alb-1191650900.us-east-1.elb.amazonaws.com/api`
+- Production frontend: `NEXT_PUBLIC_API_BASE_URL=http://skyway-prod-alb-300389705.us-east-1.elb.amazonaws.com/api`
 
 ## 4) Data Separation Rules
 
@@ -67,6 +85,8 @@
 - [ ] API health checks:
   - [ ] `GET /api/filters/` -> 200
   - [ ] `GET /api/schools/` -> 200
+  - [ ] CORS check for staging domain returns `Access-Control-Allow-Origin`:
+    - [ ] `curl -sS -D - -o /dev/null -H "Origin: http://skyway-staging.yjroutdoors.com" http://skyway-staging-alb-1191650900.us-east-1.elb.amazonaws.com/api/filters/`
 
 ## 7) Production Deployment Checklist
 
@@ -79,6 +99,8 @@
   - [ ] Search/filter
   - [ ] Auth flow
   - [ ] Favorites
+  - [ ] CORS check for production domain returns `Access-Control-Allow-Origin`:
+    - [ ] `curl -sS -D - -o /dev/null -H "Origin: http://skyway.yjroutdoors.com" http://skyway-prod-alb-300389705.us-east-1.elb.amazonaws.com/api/filters/`
 
 ## 8) Rollback Procedure
 
