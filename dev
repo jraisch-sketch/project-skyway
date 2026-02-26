@@ -24,6 +24,7 @@ Commands:
   up      Start backend and frontend in the background
   down    Stop backend and frontend
   status  Show whether services are running
+  doctor  Run local diagnostics for common startup/runtime issues
   logs    Tail backend and frontend logs
 EOF
 }
@@ -266,6 +267,156 @@ logs_all() {
   tail -n 120 -f "$BACKEND_LOG" "$FRONTEND_LOG"
 }
 
+doctor_required_key() {
+  local file="$1"
+  local key="$2"
+  if [[ ! -f "$file" ]]; then
+    echo "missing-file"
+    return
+  fi
+  if rg -n "^${key}=" "$file" >/dev/null 2>&1; then
+    echo "ok"
+  else
+    echo "missing-key"
+  fi
+}
+
+doctor_all() {
+  print_header "Doctor"
+
+  local fail_count=0
+  local warn_count=0
+
+  ok() { echo "[OK] $*"; }
+  warn() {
+    echo "[WARN] $*"
+    warn_count=$((warn_count + 1))
+  }
+  fail() {
+    echo "[FAIL] $*"
+    fail_count=$((fail_count + 1))
+  }
+
+  if command -v node >/dev/null 2>&1; then ok "node: $(node -v)"; else fail "node not found"; fi
+  if command -v npm >/dev/null 2>&1; then ok "npm: $(npm -v)"; else fail "npm not found"; fi
+  if command -v python3 >/dev/null 2>&1; then ok "python3: $(python3 --version 2>&1)"; else fail "python3 not found"; fi
+  if command -v curl >/dev/null 2>&1; then ok "curl is available"; else fail "curl not found"; fi
+  if command -v lsof >/dev/null 2>&1; then ok "lsof is available"; else warn "lsof not found; port diagnostics limited"; fi
+
+  if [[ -d "$BACKEND_DIR/.venv" ]]; then ok "backend/.venv exists"; else fail "backend/.venv missing (run ./dev setup)"; fi
+  if [[ -d "$FRONTEND_DIR/node_modules" ]]; then ok "frontend/node_modules exists"; else fail "frontend/node_modules missing (run ./dev setup)"; fi
+
+  case "$(doctor_required_key "$BACKEND_DIR/.env" POSTGRES_HOST)" in
+    ok) ok "backend/.env present with POSTGRES_HOST" ;;
+    missing-key) fail "backend/.env missing POSTGRES_HOST" ;;
+    *) fail "backend/.env missing (run ./dev setup)" ;;
+  esac
+  case "$(doctor_required_key "$BACKEND_DIR/.env" POSTGRES_DB)" in
+    ok) ok "backend/.env includes POSTGRES_DB" ;;
+    *) fail "backend/.env missing POSTGRES_DB" ;;
+  esac
+  case "$(doctor_required_key "$FRONTEND_DIR/.env.local" NEXT_PUBLIC_API_BASE_URL)" in
+    ok) ok "frontend/.env.local present with NEXT_PUBLIC_API_BASE_URL" ;;
+    missing-key) fail "frontend/.env.local missing NEXT_PUBLIC_API_BASE_URL" ;;
+    *) fail "frontend/.env.local missing (run ./dev setup)" ;;
+  esac
+
+  local db_listener
+  db_listener="$(port_listener_pid 5432)"
+  if [[ -n "$db_listener" ]]; then
+    ok "PostgreSQL listener detected on :5432 (pid $db_listener)"
+  else
+    warn "No listener on :5432; ensure PostgreSQL is running"
+  fi
+
+  local backend_listener frontend_listener
+  backend_listener="$(port_listener_pid 8000)"
+  frontend_listener="$(port_listener_pid 3000)"
+  if [[ -n "$backend_listener" ]]; then
+    ok "Backend listener detected on :8000 (pid $backend_listener)"
+  else
+    warn "No listener on :8000"
+  fi
+  if [[ -n "$frontend_listener" ]]; then
+    ok "Frontend listener detected on :3000 (pid $frontend_listener)"
+  else
+    warn "No listener on :3000"
+  fi
+
+  local api_code frontend_code
+  api_code="$(curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 8 "$BACKEND_URL" || true)"
+  if [[ "$api_code" == "200" ]]; then
+    ok "Backend API healthy at $BACKEND_URL"
+  else
+    fail "Backend API returned $api_code at $BACKEND_URL"
+  fi
+
+  frontend_code="$(curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 8 "$FRONTEND_URL" || true)"
+  if [[ "$frontend_code" == "200" ]]; then
+    ok "Frontend healthy at $FRONTEND_URL"
+  else
+    fail "Frontend returned $frontend_code at $FRONTEND_URL"
+  fi
+
+  if [[ -x "$BACKEND_DIR/.venv/bin/python" ]]; then
+    if (
+      cd "$BACKEND_DIR"
+      source .venv/bin/activate
+      python manage.py shell -c "from django.db import connection; c=connection.cursor(); c.execute('select 1'); print(c.fetchone()[0])" \
+        | rg -n "^1$" >/dev/null 2>&1
+    ); then
+      ok "Database connectivity from Django verified"
+    else
+      fail "Django database connectivity check failed"
+    fi
+  fi
+
+  if [[ "$frontend_code" == "200" ]]; then
+    local tmp_html tmp_asset_list
+    tmp_html="$(mktemp /tmp/skyway-doctor-home.XXXXXX)"
+    tmp_asset_list="$(mktemp /tmp/skyway-doctor-assets.XXXXXX)"
+    curl -sS "$FRONTEND_URL" >"$tmp_html" || true
+    rg -o '/_next/static/[^" ]+' "$tmp_html" | sort -u >"$tmp_asset_list" || true
+
+    local total_assets bad_assets
+    total_assets="$(wc -l <"$tmp_asset_list" | tr -d ' ')"
+    bad_assets=0
+    if [[ "$total_assets" -gt 0 ]]; then
+      while IFS= read -r asset; do
+        [[ -z "$asset" ]] && continue
+        local code
+        code="$(curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 8 "${FRONTEND_URL}${asset#${FRONTEND_URL}}" || true)"
+        if [[ "$code" != "200" ]]; then
+          bad_assets=$((bad_assets + 1))
+        fi
+      done <"$tmp_asset_list"
+
+      if [[ "$bad_assets" -eq 0 ]]; then
+        ok "Frontend static asset sanity check passed (${total_assets} assets)"
+      else
+        fail "Frontend static asset sanity failed (${bad_assets}/${total_assets} non-200)"
+      fi
+    else
+      warn "No _next static assets found in homepage HTML"
+    fi
+  fi
+
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if [[ -n "$(git status --porcelain)" ]]; then
+      warn "Git worktree has uncommitted changes"
+    else
+      ok "Git worktree clean"
+    fi
+  fi
+
+  echo
+  if [[ "$fail_count" -gt 0 ]]; then
+    echo "Doctor found ${fail_count} failure(s) and ${warn_count} warning(s)"
+    return 1
+  fi
+  echo "Doctor passed with ${warn_count} warning(s)"
+}
+
 up_all() {
   setup_all
   start_backend
@@ -288,6 +439,7 @@ main() {
     up) up_all ;;
     down) down_all ;;
     status) status_all ;;
+    doctor) doctor_all ;;
     logs) logs_all ;;
     *) usage; exit 1 ;;
   esac
