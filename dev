@@ -45,6 +45,55 @@ read_pid() {
   fi
 }
 
+port_listener_pid() {
+  local port="$1"
+  lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null | head -n 1 || true
+}
+
+pid_cmdline() {
+  local pid="$1"
+  ps -p "$pid" -o command= 2>/dev/null || true
+}
+
+clear_stale_listener() {
+  local name="$1"
+  local port="$2"
+  local pid_file="$3"
+  local expected_pattern="$4"
+
+  local tracked_pid listener_pid cmdline
+  tracked_pid="$(read_pid "$pid_file" || true)"
+  listener_pid="$(port_listener_pid "$port")"
+
+  if [[ -z "$listener_pid" ]]; then
+    return 0
+  fi
+
+  if [[ -n "$tracked_pid" && "$listener_pid" == "$tracked_pid" ]] && pid_is_running "$tracked_pid"; then
+    return 0
+  fi
+
+  cmdline="$(pid_cmdline "$listener_pid")"
+  if [[ "$cmdline" == *"$expected_pattern"* || "$cmdline" == *"next-server"* ]]; then
+    echo "Found stale ${name} listener on :${port} (pid ${listener_pid}); stopping it"
+    kill "$listener_pid" 2>/dev/null || true
+    for _ in $(seq 1 10); do
+      if ! pid_is_running "$listener_pid"; then
+        break
+      fi
+      sleep 1
+    done
+    if pid_is_running "$listener_pid"; then
+      kill -9 "$listener_pid" 2>/dev/null || true
+    fi
+    return 0
+  fi
+
+  echo "${name} port ${port} is in use by pid ${listener_pid}: ${cmdline}"
+  echo "Stop that process and rerun ./dev up"
+  return 1
+}
+
 ensure_backend_env() {
   if [[ ! -f "$BACKEND_DIR/.env" && -f "$BACKEND_DIR/.env.example" ]]; then
     cp "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
@@ -111,6 +160,7 @@ wait_for_url() {
 
 start_backend() {
   print_header "Starting backend"
+  clear_stale_listener "Backend" 8000 "$BACKEND_PID_FILE" "manage.py runserver"
   local pid
   pid="$(read_pid "$BACKEND_PID_FILE" || true)"
   if pid_is_running "$pid"; then
@@ -142,6 +192,7 @@ start_backend() {
 
 start_frontend() {
   print_header "Starting frontend"
+  clear_stale_listener "Frontend" 3000 "$FRONTEND_PID_FILE" "next dev"
   local pid
   pid="$(read_pid "$FRONTEND_PID_FILE" || true)"
   if pid_is_running "$pid"; then
