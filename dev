@@ -274,7 +274,9 @@ doctor_required_key() {
     echo "missing-file"
     return
   fi
-  if rg -n "^${key}=" "$file" >/dev/null 2>&1; then
+  # Use grep here (not rg) so this works even when ripgrep isn't on PATH.
+  # Accept optional Windows CRLF at end of line.
+  if grep -Eq "^${key}=.*\r?$" "$file"; then
     echo "ok"
   else
     echo "missing-key"
