@@ -22,6 +22,7 @@ Usage: ./dev <command>
 Commands:
   setup   Install dependencies and create local env files if missing
   up      Start backend and frontend in the background
+  refresh Reset stale local state, restart services, then run doctor
   down    Stop backend and frontend
   status  Show whether services are running
   doctor  Run local diagnostics for common startup/runtime issues
@@ -267,6 +268,24 @@ logs_all() {
   tail -n 120 -f "$BACKEND_LOG" "$FRONTEND_LOG"
 }
 
+reset_frontend_cache() {
+  if [[ -d "$FRONTEND_DIR/.next" ]]; then
+    rm -rf "$FRONTEND_DIR/.next"
+    echo "Removed frontend/.next cache"
+  fi
+}
+
+refresh_all() {
+  print_header "Refreshing local services"
+  down_all
+  clear_stale_listener "Frontend" 3000 "$FRONTEND_PID_FILE" "next"
+  clear_stale_listener "Backend" 8000 "$BACKEND_PID_FILE" "manage.py runserver"
+  rm -f "$FRONTEND_PID_FILE" "$BACKEND_PID_FILE"
+  reset_frontend_cache
+  up_all
+  doctor_all
+}
+
 doctor_required_key() {
   local file="$1"
   local key="$2"
@@ -365,7 +384,7 @@ doctor_all() {
       cd "$BACKEND_DIR"
       source .venv/bin/activate
       python manage.py shell -c "from django.db import connection; c=connection.cursor(); c.execute('select 1'); print(c.fetchone()[0])" \
-        | rg -n "^1$" >/dev/null 2>&1
+        | grep -qx "1"
     ); then
       ok "Database connectivity from Django verified"
     else
@@ -378,7 +397,7 @@ doctor_all() {
     tmp_html="$(mktemp /tmp/skyway-doctor-home.XXXXXX)"
     tmp_asset_list="$(mktemp /tmp/skyway-doctor-assets.XXXXXX)"
     curl -sS "$FRONTEND_URL" >"$tmp_html" || true
-    rg -o '/_next/static/[^" ]+' "$tmp_html" | sort -u >"$tmp_asset_list" || true
+    grep -Eo '/_next/static/[^" ]+' "$tmp_html" | sort -u >"$tmp_asset_list" || true
 
     local total_assets bad_assets
     total_assets="$(wc -l <"$tmp_asset_list" | tr -d ' ')"
@@ -439,6 +458,7 @@ main() {
   case "$cmd" in
     setup) setup_all ;;
     up) up_all ;;
+    refresh) refresh_all ;;
     down) down_all ;;
     status) status_all ;;
     doctor) doctor_all ;;
