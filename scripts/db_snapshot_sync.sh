@@ -170,6 +170,7 @@ restore_into_target() {
     --if-exists \
     --no-owner \
     --no-privileges \
+    -f - \
     "$file" \
     | awk '!/^SET transaction_timeout = 0;$/ { print }' \
     | PGPASSWORD="$pass" psql \
