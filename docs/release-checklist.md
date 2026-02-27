@@ -80,10 +80,16 @@ SSL + API parity rule:
 ## 5) Staging Deployment Checklist
 
 - [ ] Merge feature PR into `main`
-- [ ] Build and push backend image tagged for staging
-- [ ] Deploy staging App Runner to new staging image
-- [ ] Run Django migrations in staging
+- [ ] Backend deploy:
+  - [ ] Build and push backend image tagged for staging
+  - [ ] Deploy staging App Runner to new staging image
+  - [ ] Run Django migrations in staging
+- [ ] Frontend deploy (use guarded command; do not deploy manually):
+  - [ ] `make deploy-staging-frontend`
+  - [ ] Guardrail in command enforces `linux/amd64` image build and ECS service rollout
+  - [ ] Guardrail in command runs strict post-deploy proof checks
 - [ ] Confirm staging frontend points to staging backend URL
+- [ ] If ECS service event shows `image Manifest ... linux/amd64`, treat as failed deploy and rebuild with amd64 (guarded command already does this)
 
 ## 6) Staging QA Checklist (Go/No-Go Gate)
 
