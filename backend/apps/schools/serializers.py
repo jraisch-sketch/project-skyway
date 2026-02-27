@@ -2,6 +2,22 @@ from rest_framework import serializers
 
 from .models import Conference, FavoriteSchool, School
 
+LEGACY_MTB_FIELDS = (
+    'mtb_xc',
+    'mtb_st',
+    'mtb_enduro',
+    'mtb_downhill',
+    'mtb_slalom',
+)
+
+
+class PublicDisciplineSerializerMixin:
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for field in LEGACY_MTB_FIELDS:
+            data.pop(field, None)
+        return data
+
 
 class ConferenceSerializer(serializers.ModelSerializer):
     team_count = serializers.IntegerField(read_only=True)
@@ -11,7 +27,7 @@ class ConferenceSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'long_name', 'acronym', 'description', 'team_count')
 
 
-class SchoolListSerializer(serializers.ModelSerializer):
+class SchoolListSerializer(PublicDisciplineSerializerMixin, serializers.ModelSerializer):
     conference = serializers.CharField(source='conference.name', read_only=True, default='')
 
     class Meta:
@@ -37,7 +53,7 @@ class SchoolListSerializer(serializers.ModelSerializer):
         )
 
 
-class SchoolDetailSerializer(serializers.ModelSerializer):
+class SchoolDetailSerializer(PublicDisciplineSerializerMixin, serializers.ModelSerializer):
     conference = serializers.CharField(source='conference.name', read_only=True, default='')
 
     class Meta:

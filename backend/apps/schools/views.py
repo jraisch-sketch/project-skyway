@@ -17,11 +17,6 @@ from .serializers import (
 DISCIPLINE_FILTER_QS = {
     'road': 'road',
     'mtb': Q(mtb=True) | Q(mtb_xc=True) | Q(mtb_st=True) | Q(mtb_enduro=True) | Q(mtb_downhill=True) | Q(mtb_slalom=True),
-    'mtb_xc': 'mtb_xc',
-    'mtb_st': 'mtb_st',
-    'mtb_enduro': 'mtb_enduro',
-    'mtb_downhill': 'mtb_downhill',
-    'mtb_slalom': 'mtb_slalom',
     'cyclocross': 'cyclocross',
     'track': 'track',
 }
