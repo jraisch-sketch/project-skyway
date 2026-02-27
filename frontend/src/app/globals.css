@@ -1167,6 +1167,7 @@ h2 {
 
 .favorites-table td {
   color: #2b4566;
+  background: rgba(106, 128, 166, 0.14);
 }
 
 .favorites-sort-button {
@@ -1196,6 +1197,56 @@ h2 {
   flex-wrap: wrap;
   gap: 0.28rem 0.65rem;
   font-size: 0.82rem;
+}
+
+@media (max-width: 980px) {
+  .favorites-table {
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .favorites-table thead {
+    display: none;
+  }
+
+  .favorites-table tbody tr {
+    display: block;
+    border: 1px solid rgba(86, 112, 154, 0.5);
+    border-radius: 12px;
+    background: rgba(106, 128, 166, 0.14);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .favorites-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .favorites-table tbody td {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: start;
+    padding: 0.58rem 0.72rem;
+    border-bottom: 1px solid rgba(86, 112, 154, 0.35);
+    color: #2b4566;
+    font-size: 0.84rem;
+  }
+
+  .favorites-table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  .favorites-table tbody td::before {
+    content: attr(data-label);
+    color: #5f799f;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
 }
 
 .school-overlay-backdrop {
