@@ -448,10 +448,48 @@ h2 {
 }
 
 .auth-form button {
-  background: linear-gradient(180deg, #5aa6ff, #3a8ef0);
+  background: linear-gradient(180deg, #4db8a7, #319a8b);
   border: none;
   color: #f2f8ff;
   cursor: pointer;
+  font-weight: 600;
+}
+
+.auth-form button:hover {
+  background: linear-gradient(180deg, #5ac5b3, #3aa796);
+}
+
+.auth-select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.auth-select-field > span {
+  color: #a9bddb;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.auth-select {
+  width: 100%;
+  padding: 0.5rem 2.2rem 0.5rem 0.62rem;
+  border: 1px solid rgba(96, 121, 161, 0.58);
+  border-radius: 10px;
+  font: inherit;
+  background-color: rgba(13, 24, 43, 0.95);
+  color: #e4edfa;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #8fb2e4 50%),
+    linear-gradient(135deg, #8fb2e4 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 10px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .filter-links {
@@ -1129,6 +1167,7 @@ h2 {
 
 .favorites-table td {
   color: #2b4566;
+  background: rgba(106, 128, 166, 0.14);
 }
 
 .favorites-sort-button {
@@ -1158,6 +1197,56 @@ h2 {
   flex-wrap: wrap;
   gap: 0.28rem 0.65rem;
   font-size: 0.82rem;
+}
+
+@media (max-width: 980px) {
+  .favorites-table {
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .favorites-table thead {
+    display: none;
+  }
+
+  .favorites-table tbody tr {
+    display: block;
+    border: 1px solid rgba(86, 112, 154, 0.5);
+    border-radius: 12px;
+    background: rgba(106, 128, 166, 0.14);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .favorites-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .favorites-table tbody td {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: start;
+    padding: 0.58rem 0.72rem;
+    border-bottom: 1px solid rgba(86, 112, 154, 0.35);
+    color: #2b4566;
+    font-size: 0.84rem;
+  }
+
+  .favorites-table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  .favorites-table tbody td::before {
+    content: attr(data-label);
+    color: #5f799f;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
 }
 
 .school-overlay-backdrop {

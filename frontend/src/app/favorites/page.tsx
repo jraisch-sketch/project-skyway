@@ -132,7 +132,7 @@ export default function FavoritesPage() {
 
                 return (
                   <tr key={favorite.id}>
-                    <td>
+                    <td data-label='School'>
                       <Link
                         href={`/schools/cycling-program/${favorite.school.id}/${slugify(favorite.school.name)}`}
                         className='favorites-school-name'
@@ -151,10 +151,10 @@ export default function FavoritesPage() {
                         )}
                       </div>
                     </td>
-                    <td>{[favorite.school.city, favorite.school.state].filter(Boolean).join(', ') || 'N/A'}</td>
-                    <td>{favorite.school.team_type || 'N/A'}</td>
-                    <td>{favorite.school.conference || 'N/A'}</td>
-                    <td>
+                    <td data-label='City/State'>{[favorite.school.city, favorite.school.state].filter(Boolean).join(', ') || 'N/A'}</td>
+                    <td data-label='Team Type'>{favorite.school.team_type || 'N/A'}</td>
+                    <td data-label='Conference'>{favorite.school.conference || 'N/A'}</td>
+                    <td data-label='Discipline tags'>
                       <div className='discipline-chips'>
                         {disciplineLabels.length > 0 ? (
                           disciplineLabels.map((label) => (
@@ -165,7 +165,7 @@ export default function FavoritesPage() {
                         )}
                       </div>
                     </td>
-                    <td>{new Date(favorite.created_at).toLocaleDateString()}</td>
+                    <td data-label='Date Added'>{new Date(favorite.created_at).toLocaleDateString()}</td>
                   </tr>
                 );
               })}

@@ -22,6 +22,7 @@ Usage: ./dev <command>
 Commands:
   setup   Install dependencies and create local env files if missing
   up      Start backend and frontend in the background
+  refresh Reset stale local state, restart services, then run doctor
   down    Stop backend and frontend
   status  Show whether services are running
   doctor  Run local diagnostics for common startup/runtime issues
@@ -54,6 +55,14 @@ port_listener_pid() {
 pid_cmdline() {
   local pid="$1"
   ps -p "$pid" -o command= 2>/dev/null || true
+}
+
+pid_matches_pattern() {
+  local pid="$1"
+  local expected_pattern="$2"
+  local cmdline
+  cmdline="$(pid_cmdline "$pid")"
+  [[ "$cmdline" == *"$expected_pattern"* || "$cmdline" == *"next-server"* ]]
 }
 
 clear_stale_listener() {
@@ -159,6 +168,42 @@ wait_for_url() {
   return 1
 }
 
+frontend_http_code() {
+  curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 8 "$FRONTEND_URL" || true
+}
+
+frontend_missing_chunk_error_present() {
+  if [[ ! -f "$FRONTEND_LOG" ]]; then
+    return 1
+  fi
+  tail -n 200 "$FRONTEND_LOG" | grep -Eq "Cannot find module '\./[0-9]+\.js'"
+}
+
+start_detached() {
+  local command="$1"
+  local log_file="$2"
+  local pid_file="$3"
+
+  if command -v setsid >/dev/null 2>&1; then
+    nohup setsid /bin/bash -lc "$command" < /dev/null >"$log_file" 2>&1 &
+  else
+    nohup /bin/bash -lc "$command" < /dev/null >"$log_file" 2>&1 &
+  fi
+  echo "$!" >"$pid_file"
+}
+
+start_frontend_process() {
+  start_detached "cd \"$FRONTEND_DIR\" && exec npm run dev -- -H ${BIND_HOST} -p 3000" "$FRONTEND_LOG" "$FRONTEND_PID_FILE"
+}
+
+restart_frontend_clean() {
+  print_header "Frontend auto-recovery"
+  stop_service "Frontend" "$FRONTEND_PID_FILE" 3000 "next"
+  clear_stale_listener "Frontend" 3000 "$FRONTEND_PID_FILE" "next"
+  reset_frontend_cache
+  start_frontend_process
+}
+
 start_backend() {
   print_header "Starting backend"
   clear_stale_listener "Backend" 8000 "$BACKEND_PID_FILE" "manage.py runserver"
@@ -180,15 +225,14 @@ start_backend() {
     return 1
   fi
 
-  nohup /bin/bash -lc "cd \"$BACKEND_DIR\" && source .venv/bin/activate && exec python manage.py runserver ${BIND_HOST}:8000" \
-    >"$BACKEND_LOG" 2>&1 &
-  echo "$!" >"$BACKEND_PID_FILE"
+  start_detached "cd \"$BACKEND_DIR\" && source .venv/bin/activate && exec python manage.py runserver ${BIND_HOST}:8000" "$BACKEND_LOG" "$BACKEND_PID_FILE"
 
   if ! wait_for_url "Backend" "$BACKEND_URL" 25; then
     echo "Last backend log lines:"
     tail -n 40 "$BACKEND_LOG" || true
     return 1
   fi
+  sync_pid_file_with_listener "Backend" 8000 "$BACKEND_PID_FILE" || true
 }
 
 start_frontend() {
@@ -197,65 +241,158 @@ start_frontend() {
   local pid
   pid="$(read_pid "$FRONTEND_PID_FILE" || true)"
   if pid_is_running "$pid"; then
-    echo "Frontend already running (pid $pid)"
-    return 0
+    local existing_code
+    existing_code="$(frontend_http_code)"
+    if [[ "$existing_code" == "200" ]]; then
+      echo "Frontend already running (pid $pid)"
+      return 0
+    fi
+
+    if frontend_missing_chunk_error_present; then
+      echo "Frontend running (pid $pid) but missing chunk error detected; attempting auto-recovery"
+      restart_frontend_clean
+      if wait_for_url "Frontend" "$FRONTEND_URL" 30; then
+        sync_pid_file_with_listener "Frontend" 3000 "$FRONTEND_PID_FILE" || true
+        return 0
+      fi
+      echo "Last frontend log lines:"
+      tail -n 60 "$FRONTEND_LOG" || true
+      return 1
+    fi
+
+    echo "Frontend process running (pid $pid) but unhealthy (HTTP ${existing_code}); restart with ./dev refresh"
+    tail -n 40 "$FRONTEND_LOG" || true
+    return 1
+  fi
+
+  local listener_pid
+  listener_pid="$(port_listener_pid 3000)"
+  if [[ -n "$listener_pid" && "$listener_pid" != "$pid" ]]; then
+    if frontend_missing_chunk_error_present; then
+      echo "Missing chunk error detected with a stale listener; forcing clean restart"
+      restart_frontend_clean
+      if wait_for_url "Frontend" "$FRONTEND_URL" 30; then
+        sync_pid_file_with_listener "Frontend" 3000 "$FRONTEND_PID_FILE" || true
+        return 0
+      fi
+      echo "Last frontend log lines:"
+      tail -n 60 "$FRONTEND_LOG" || true
+      return 1
+    fi
   fi
 
   ensure_frontend_env
 
-  nohup /bin/bash -lc "cd \"$FRONTEND_DIR\" && exec npm run dev -- -H ${BIND_HOST} -p 3000" \
-    >"$FRONTEND_LOG" 2>&1 &
-  echo "$!" >"$FRONTEND_PID_FILE"
+  start_frontend_process
 
-  if ! wait_for_url "Frontend" "$FRONTEND_URL" 25; then
+  if wait_for_url "Frontend" "$FRONTEND_URL" 25; then
+    sync_pid_file_with_listener "Frontend" 3000 "$FRONTEND_PID_FILE" || true
+    return 0
+  fi
+
+  if frontend_missing_chunk_error_present; then
+    echo "Frontend startup failed with missing chunk error; attempting clean auto-recovery"
+    restart_frontend_clean
+    if wait_for_url "Frontend" "$FRONTEND_URL" 30; then
+      sync_pid_file_with_listener "Frontend" 3000 "$FRONTEND_PID_FILE" || true
+      return 0
+    fi
     echo "Last frontend log lines:"
-    tail -n 40 "$FRONTEND_LOG" || true
+    tail -n 60 "$FRONTEND_LOG" || true
     return 1
   fi
+
+  echo "Last frontend log lines:"
+  tail -n 40 "$FRONTEND_LOG" || true
+  return 1
 }
 
 stop_service() {
   local name="$1"
   local pid_file="$2"
+  local port="$3"
+  local expected_pattern="$4"
   local pid
   pid="$(read_pid "$pid_file" || true)"
+  local listener_pid
+  listener_pid="$(port_listener_pid "$port")"
 
-  if ! pid_is_running "$pid"; then
-    echo "$name is not running"
-    rm -f "$pid_file"
-    return 0
-  fi
-
-  kill "$pid" 2>/dev/null || true
-  for _ in $(seq 1 10); do
-    if ! pid_is_running "$pid"; then
-      break
-    fi
-    sleep 1
-  done
   if pid_is_running "$pid"; then
-    kill -9 "$pid" 2>/dev/null || true
+    kill "$pid" 2>/dev/null || true
+    for _ in $(seq 1 10); do
+      if ! pid_is_running "$pid"; then
+        break
+      fi
+      sleep 1
+    done
+    if pid_is_running "$pid"; then
+      kill -9 "$pid" 2>/dev/null || true
+    fi
   fi
+
+  listener_pid="$(port_listener_pid "$port")"
+  if [[ -n "$listener_pid" ]] && pid_is_running "$listener_pid"; then
+    if pid_matches_pattern "$listener_pid" "$expected_pattern"; then
+      kill "$listener_pid" 2>/dev/null || true
+      for _ in $(seq 1 10); do
+        if ! pid_is_running "$listener_pid"; then
+          break
+        fi
+        sleep 1
+      done
+      if pid_is_running "$listener_pid"; then
+        kill -9 "$listener_pid" 2>/dev/null || true
+      fi
+    else
+      echo "$name listener on :${port} belongs to another process; not stopping it"
+      echo "Process: $(pid_cmdline "$listener_pid")"
+      return 1
+    fi
+  fi
+
   rm -f "$pid_file"
   echo "$name stopped"
 }
 
+sync_pid_file_with_listener() {
+  local name="$1"
+  local port="$2"
+  local pid_file="$3"
+  local listener_pid
+  listener_pid="$(port_listener_pid "$port")"
+  if [[ -n "$listener_pid" ]]; then
+    echo "$listener_pid" >"$pid_file"
+    return 0
+  fi
+  echo "Could not determine ${name} listener PID on :${port}"
+  return 1
+}
+
 status_all() {
   print_header "Service status"
-  local backend_pid frontend_pid
+  local backend_pid frontend_pid backend_listener frontend_listener
   backend_pid="$(read_pid "$BACKEND_PID_FILE" || true)"
   frontend_pid="$(read_pid "$FRONTEND_PID_FILE" || true)"
+  backend_listener="$(port_listener_pid 8000)"
+  frontend_listener="$(port_listener_pid 3000)"
 
-  if pid_is_running "$backend_pid"; then
-    echo "Backend: running (pid $backend_pid) -> http://${BIND_HOST}:8000"
+  if [[ -n "$backend_listener" ]] && pid_is_running "$backend_listener"; then
+    echo "Backend: running (pid $backend_listener) -> http://${BIND_HOST}:8000"
   else
     echo "Backend: stopped"
   fi
 
-  if pid_is_running "$frontend_pid"; then
-    echo "Frontend: running (pid $frontend_pid) -> http://${BIND_HOST}:3000"
+  if [[ -n "$frontend_listener" ]] && pid_is_running "$frontend_listener"; then
+    echo "Frontend: running (pid $frontend_listener) -> http://${BIND_HOST}:3000"
   else
     echo "Frontend: stopped"
+  fi
+
+  if [[ -n "$backend_listener" && "$backend_listener" != "$backend_pid" ]]; then
+    echo "$backend_listener" >"$BACKEND_PID_FILE"
+  fi
+  if [[ -n "$frontend_listener" && "$frontend_listener" != "$frontend_pid" ]]; then
+    echo "$frontend_listener" >"$FRONTEND_PID_FILE"
   fi
 
   echo "Logs: $BACKEND_LOG and $FRONTEND_LOG"
@@ -265,6 +402,24 @@ logs_all() {
   print_header "Tailing logs"
   touch "$BACKEND_LOG" "$FRONTEND_LOG"
   tail -n 120 -f "$BACKEND_LOG" "$FRONTEND_LOG"
+}
+
+reset_frontend_cache() {
+  if [[ -d "$FRONTEND_DIR/.next" ]]; then
+    rm -rf "$FRONTEND_DIR/.next"
+    echo "Removed frontend/.next cache"
+  fi
+}
+
+refresh_all() {
+  print_header "Refreshing local services"
+  down_all
+  clear_stale_listener "Frontend" 3000 "$FRONTEND_PID_FILE" "next"
+  clear_stale_listener "Backend" 8000 "$BACKEND_PID_FILE" "manage.py runserver"
+  rm -f "$FRONTEND_PID_FILE" "$BACKEND_PID_FILE"
+  reset_frontend_cache
+  up_all
+  doctor_all
 }
 
 doctor_required_key() {
@@ -365,7 +520,7 @@ doctor_all() {
       cd "$BACKEND_DIR"
       source .venv/bin/activate
       python manage.py shell -c "from django.db import connection; c=connection.cursor(); c.execute('select 1'); print(c.fetchone()[0])" \
-        | rg -n "^1$" >/dev/null 2>&1
+        | grep -qx "1"
     ); then
       ok "Database connectivity from Django verified"
     else
@@ -378,7 +533,7 @@ doctor_all() {
     tmp_html="$(mktemp /tmp/skyway-doctor-home.XXXXXX)"
     tmp_asset_list="$(mktemp /tmp/skyway-doctor-assets.XXXXXX)"
     curl -sS "$FRONTEND_URL" >"$tmp_html" || true
-    rg -o '/_next/static/[^" ]+' "$tmp_html" | sort -u >"$tmp_asset_list" || true
+    grep -Eo '/_next/static/[^" ]+' "$tmp_html" | sort -u >"$tmp_asset_list" || true
 
     local total_assets bad_assets
     total_assets="$(wc -l <"$tmp_asset_list" | tr -d ' ')"
@@ -430,8 +585,8 @@ up_all() {
 
 down_all() {
   print_header "Stopping services"
-  stop_service "Frontend" "$FRONTEND_PID_FILE"
-  stop_service "Backend" "$BACKEND_PID_FILE"
+  stop_service "Frontend" "$FRONTEND_PID_FILE" 3000 "next"
+  stop_service "Backend" "$BACKEND_PID_FILE" 8000 "manage.py runserver"
 }
 
 main() {
@@ -439,6 +594,7 @@ main() {
   case "$cmd" in
     setup) setup_all ;;
     up) up_all ;;
+    refresh) refresh_all ;;
     down) down_all ;;
     status) status_all ;;
     doctor) doctor_all ;;
