@@ -8,6 +8,14 @@ SNAPSHOT_DIR_DEFAULT="$ROOT_DIR/snapshots/db"
 ENV_FILE="${ENV_FILE:-$ENV_FILE_DEFAULT}"
 SNAPSHOT_DIR="${SNAPSHOT_DIR:-$SNAPSHOT_DIR_DEFAULT}"
 
+# Ensure PostgreSQL client tools are discoverable even in non-login shells.
+for candidate in "/opt/homebrew/opt/libpq/bin" "/usr/local/opt/libpq/bin"; do
+  if [[ -x "${candidate}/pg_dump" ]]; then
+    export PATH="${candidate}:$PATH"
+    break
+  fi
+done
+
 YES=0
 SNAPSHOT_FILE=""
 
@@ -153,17 +161,23 @@ restore_into_target() {
   pass="${!pass_var}"
 
   log "Restoring snapshot into ${target} database ${name}@${host}:${port}"
+  log "Applying compatibility filter for pg_dump/pg_restore timeout settings"
+  # pg_dump from newer client versions (e.g., PostgreSQL 18) can emit
+  # SET transaction_timeout, which older server versions do not recognize.
+  # Stream restore SQL through a filter before piping to psql.
   PGPASSWORD="$pass" pg_restore \
-    --host "$host" \
-    --port "$port" \
-    --username "$user" \
-    --dbname "$name" \
     --clean \
     --if-exists \
     --no-owner \
     --no-privileges \
-    --single-transaction \
-    "$file"
+    "$file" \
+    | awk '!/^SET transaction_timeout = 0;$/ { print }' \
+    | PGPASSWORD="$pass" psql \
+      --host "$host" \
+      --port "$port" \
+      --username "$user" \
+      --dbname "$name" \
+      --set ON_ERROR_STOP=1
   log "Restore into ${target} completed"
 }
 
