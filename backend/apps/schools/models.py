@@ -19,6 +19,21 @@ class Conference(models.Model):
         return self.name
 
 
+class Discipline(models.Model):
+    key = models.CharField(max_length=50, unique=True)
+    label = models.CharField(max_length=80)
+    hidden = models.BooleanField(default=False, db_index=True)
+    sort_order = models.PositiveIntegerField(default=0, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', 'label']
+
+    def __str__(self) -> str:
+        return f'{self.label} ({self.key})'
+
+
 class School(models.Model):
     class TeamType(models.TextChoices):
         CLUB = 'Club', 'Club'
@@ -114,6 +129,7 @@ class School(models.Model):
     logo = models.ImageField(upload_to='school-logos/', blank=True)
 
     road = models.BooleanField(default=False)
+    mtb = models.BooleanField(default=False)
     mtb_xc = models.BooleanField(default=False)
     mtb_st = models.BooleanField(default=False)
     mtb_enduro = models.BooleanField(default=False)

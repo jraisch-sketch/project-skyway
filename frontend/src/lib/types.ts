@@ -11,11 +11,7 @@ export type School = {
   latitude: number | null;
   longitude: number | null;
   road: boolean;
-  mtb_xc: boolean;
-  mtb_st: boolean;
-  mtb_enduro: boolean;
-  mtb_downhill: boolean;
-  mtb_slalom: boolean;
+  mtb: boolean;
   cyclocross: boolean;
   track: boolean;
   cycling_program_status: string;

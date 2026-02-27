@@ -9,6 +9,7 @@ from apps.schools.models import School
 
 DISCIPLINE_KEYWORDS = {
     'road': ('road', 'criterium', 'crit', 'time trial', 'tt'),
+    'mtb': ('mountain bike', 'mountain biking', 'mtb'),
     'mtb_xc': ('xc', 'cross-country', 'cross country'),
     'mtb_st': ('short track', 'xcc', 'mtb st'),
     'mtb_enduro': ('enduro',),
@@ -18,7 +19,7 @@ DISCIPLINE_KEYWORDS = {
     'track': ('track cycling', 'velodrome'),
 }
 
-BOOL_FIELDS = ('road', 'mtb_xc', 'mtb_st', 'mtb_enduro', 'mtb_downhill', 'mtb_slalom', 'cyclocross', 'track')
+BOOL_FIELDS = ('road', 'mtb', 'mtb_xc', 'mtb_st', 'mtb_enduro', 'mtb_downhill', 'mtb_slalom', 'cyclocross', 'track')
 STATUS_VALUES = {'active', 'inactive', 'unknown', 'limited'}
 EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
@@ -47,6 +48,11 @@ class Command(BaseCommand):
         parser.add_argument('--input', type=str, required=True)
         parser.add_argument('--dry-run', action='store_true')
         parser.add_argument('--force', action='store_true', help='Allow explicit false overwrites for discipline booleans.')
+        parser.add_argument(
+            '--no-infer',
+            action='store_true',
+            help='Only apply explicit discipline booleans from CSV (skip keyword inference from evidence text).',
+        )
         parser.add_argument('--report', type=str, default='')
 
     def handle(self, *args, **options):
@@ -56,6 +62,7 @@ class Command(BaseCommand):
 
         dry_run = options['dry_run']
         force = options['force']
+        no_infer = options['no_infer']
         report_path = Path(options['report']) if options['report'] else None
 
         processed = updated = skipped = failed = 0
@@ -89,11 +96,11 @@ class Command(BaseCommand):
                             ],
                         )
                     )
-                    inferred = infer_disciplines(evidence_text)
+                    inferred = {} if no_infer else infer_disciplines(evidence_text)
 
                     for field in BOOL_FIELDS:
                         explicit = parse_bool(row.get(field, ''))
-                        value = explicit if explicit is not None else (True if inferred[field] else None)
+                        value = explicit if explicit is not None else (True if inferred.get(field) else None)
                         if value is None:
                             continue
                         current = getattr(school, field)
@@ -103,6 +110,14 @@ class Command(BaseCommand):
                         elif value is False and force and current is not False:
                             setattr(school, field, False)
                             changes.append(field)
+
+                    # MTB aggregate flag should follow any positive MTB subtype evidence.
+                    if any(
+                        getattr(school, key)
+                        for key in ('mtb', 'mtb_xc', 'mtb_st', 'mtb_enduro', 'mtb_downhill', 'mtb_slalom')
+                    ) and school.mtb is not True:
+                        school.mtb = True
+                        changes.append('mtb')
 
                     status = (row.get('cycling_program_status') or '').strip().lower()
                     if status in STATUS_VALUES and school.cycling_program_status != status:

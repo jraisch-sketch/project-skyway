@@ -2,11 +2,7 @@ import type { School } from '@/lib/types';
 
 export const DISCIPLINE_LABELS: Record<string, string> = {
   road: 'Road',
-  mtb_xc: 'MTB XC',
-  mtb_st: 'MTB Short Track',
-  mtb_enduro: 'MTB Enduro',
-  mtb_downhill: 'MTB Downhill',
-  mtb_slalom: 'MTB Slalom',
+  mtb: 'MTB',
   cyclocross: 'Cyclocross',
   track: 'Track',
 };

@@ -11,13 +11,21 @@ from django.utils.html import format_html
 from .csv_import import import_schools_from_csv
 from .forms import CSVUploadForm, DataLoadUploadForm
 from .import_pipeline import parse_schema_json_file, run_data_load_job
-from .models import Conference, DataLoadJob, FavoriteSchool, ImportSchema, School
+from .models import Conference, DataLoadJob, Discipline, FavoriteSchool, ImportSchema, School
 
 
 @admin.register(Conference)
 class ConferenceAdmin(admin.ModelAdmin):
     list_display = ('name', 'long_name', 'acronym', 'contact_name', 'contact_email', 'updated_at')
     search_fields = ('name', 'long_name', 'acronym', 'contact_name', 'contact_email')
+
+
+@admin.register(Discipline)
+class DisciplineAdmin(admin.ModelAdmin):
+    list_display = ('key', 'label', 'hidden', 'sort_order', 'updated_at')
+    list_filter = ('hidden',)
+    search_fields = ('key', 'label')
+    ordering = ('sort_order', 'label')
 
 
 class NCESCoverageFilter(admin.SimpleListFilter):
@@ -178,7 +186,12 @@ class SchoolAdmin(admin.ModelAdmin):
         'institution_control',
         'institution_level',
         'road',
+        'mtb',
         'mtb_xc',
+        'mtb_st',
+        'mtb_enduro',
+        'mtb_downhill',
+        'mtb_slalom',
         'cyclocross',
         'track',
         'geocode_status',
