@@ -1,4 +1,4 @@
-.PHONY: setup up down status logs
+.PHONY: setup up down status logs verify-staging-frontend
 
 setup:
 	./dev setup
@@ -14,3 +14,6 @@ status:
 
 logs:
 	./dev logs
+
+verify-staging-frontend:
+	./scripts/verify_staging_frontend.sh

@@ -98,6 +98,11 @@ SSL + API parity rule:
   - [ ] `GET /api/schools/` -> 200
   - [ ] CORS check for staging domain returns `Access-Control-Allow-Origin`:
     - [ ] `curl -sS -D - -o /dev/null -H "Origin: http://skyway-staging.yjroutdoors.com" http://skyway-staging-alb-1191650900.us-east-1.elb.amazonaws.com/api/filters/`
+- [ ] Frontend deploy proof check passes (asset-level):
+  - [ ] `make verify-staging-frontend`
+  - [ ] For feature-critical UI updates, add explicit assertions:
+    - [ ] `./scripts/verify_staging_frontend.sh --route /favorites --expect-js "data-label" --expect-css "favorites-table tbody tr"`
+  - [ ] If health checks pass but proof check fails, treat deploy as **not complete** and re-run frontend deploy
 
 ## 7) Production Deployment Checklist
 
