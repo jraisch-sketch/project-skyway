@@ -29,6 +29,14 @@ Useful commands:
 ./dev logs     # tail backend/frontend logs
 ./dev down     # stop both services
 ./dev setup    # run setup only
+./dev refresh  # hard reset local state, restart, then run doctor
+```
+
+Recommended daily flow:
+
+```bash
+make local       # runs ./dev refresh
+make local-check # runs ./dev doctor
 ```
 
 Logs are written to:
