@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'hijack',
     'apps.accounts',
     'apps.cms',
     'apps.schools',
@@ -36,9 +37,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+HIJACK_PERMISSION_CHECK = 'hijack.permissions.superusers_only'
 
 if find_spec('whitenoise') is not None:
     MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware')

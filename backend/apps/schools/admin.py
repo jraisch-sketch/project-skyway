@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
 
 from django.core.files.base import ContentFile
+from django.core.exceptions import PermissionDenied
 from django.contrib import admin, messages
 from django.db.models import Count, Q
 from django.http import HttpRequest, HttpResponseRedirect
@@ -14,14 +15,45 @@ from .import_pipeline import parse_schema_json_file, run_data_load_job
 from .models import Conference, DataLoadJob, Discipline, FavoriteSchool, ImportSchema, School
 
 
+def is_conference_admin_user(user):
+    return bool(user.is_active and user.is_staff and not user.is_superuser)
+
+
+class HideFromConferenceAdminsMixin:
+    def has_module_permission(self, request):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_view_permission(request, obj=obj)
+
+    def has_add_permission(self, request):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_change_permission(request, obj=obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_delete_permission(request, obj=obj)
+
+
 @admin.register(Conference)
-class ConferenceAdmin(admin.ModelAdmin):
+class ConferenceAdmin(HideFromConferenceAdminsMixin, admin.ModelAdmin):
     list_display = ('name', 'long_name', 'acronym', 'contact_name', 'contact_email', 'updated_at')
     search_fields = ('name', 'long_name', 'acronym', 'contact_name', 'contact_email')
 
 
 @admin.register(Discipline)
-class DisciplineAdmin(admin.ModelAdmin):
+class DisciplineAdmin(HideFromConferenceAdminsMixin, admin.ModelAdmin):
     list_display = ('key', 'label', 'hidden', 'sort_order', 'updated_at')
     list_filter = ('hidden',)
     search_fields = ('key', 'label')
@@ -202,6 +234,67 @@ class SchoolAdmin(admin.ModelAdmin):
     readonly_fields = ('openstreetmap_link', 'openstreetmap_embed', 'next_needs_review_link')
     actions = ('hide_selected_schools', 'unhide_selected_schools')
 
+    def _conference_admin_conference_ids(self, request):
+        if request.user.is_superuser:
+            return None
+        return set(request.user.allowed_conferences.values_list('id', flat=True))
+
+    def has_module_permission(self, request):
+        if request.user.is_superuser:
+            return True
+        return is_conference_admin_user(request.user)
+
+    def has_view_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        if not is_conference_admin_user(request.user):
+            return False
+        if obj is None:
+            return True
+        allowed_ids = self._conference_admin_conference_ids(request)
+        return bool(obj.conference_id and obj.conference_id in allowed_ids)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        if not is_conference_admin_user(request.user):
+            return False
+        if obj is None:
+            return True
+        allowed_ids = self._conference_admin_conference_ids(request)
+        return bool(obj.conference_id and obj.conference_id in allowed_ids)
+
+    def has_add_permission(self, request):
+        if request.user.is_superuser:
+            return True
+        return is_conference_admin_user(request.user)
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        return False
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        if not is_conference_admin_user(request.user):
+            return queryset.none()
+        allowed_ids = self._conference_admin_conference_ids(request)
+        return queryset.filter(conference_id__in=allowed_ids)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'conference' and not request.user.is_superuser and is_conference_admin_user(request.user):
+            allowed_ids = self._conference_admin_conference_ids(request)
+            kwargs['queryset'] = Conference.objects.filter(id__in=allowed_ids)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_list_filter(self, request):
+        list_filter = list(super().get_list_filter(request))
+        if not request.user.is_superuser and is_conference_admin_user(request.user):
+            list_filter = [f for f in list_filter if f != 'conference']
+        return list_filter
+
     @admin.action(description='Hide selected schools')
     def hide_selected_schools(self, request, queryset):
         updated = queryset.update(hidden=True)
@@ -282,6 +375,19 @@ class SchoolAdmin(admin.ModelAdmin):
     def _school_changelist_url(self, params: dict[str, str]) -> str:
         base_url = reverse('admin:schools_school_changelist')
         return f'{base_url}?{urlencode(params)}'
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(super().get_readonly_fields(request, obj))
+        if not request.user.is_superuser and is_conference_admin_user(request.user):
+            readonly_fields = [field for field in readonly_fields if field != 'next_needs_review_link']
+        return readonly_fields
+
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser and is_conference_admin_user(request.user):
+            allowed_ids = self._conference_admin_conference_ids(request)
+            if obj.conference_id not in allowed_ids:
+                raise PermissionDenied('You can only assign schools to your permitted conferences.')
+        super().save_model(request, obj, form, change)
 
     def scorecard_view(self, request: HttpRequest):
         total = School.objects.count()
@@ -414,21 +520,21 @@ class SchoolAdmin(admin.ModelAdmin):
 
 
 @admin.register(FavoriteSchool)
-class FavoriteSchoolAdmin(admin.ModelAdmin):
+class FavoriteSchoolAdmin(HideFromConferenceAdminsMixin, admin.ModelAdmin):
     list_display = ('user', 'school', 'visibility', 'created_at')
     list_filter = ('visibility',)
     search_fields = ('user__email', 'school__name')
 
 
 @admin.register(ImportSchema)
-class ImportSchemaAdmin(admin.ModelAdmin):
+class ImportSchemaAdmin(HideFromConferenceAdminsMixin, admin.ModelAdmin):
     list_display = ('name', 'version', 'target_model', 'active', 'updated_at')
     list_filter = ('active', 'target_model')
     search_fields = ('name', 'version')
 
 
 @admin.register(DataLoadJob)
-class DataLoadJobAdmin(admin.ModelAdmin):
+class DataLoadJobAdmin(HideFromConferenceAdminsMixin, admin.ModelAdmin):
     list_display = (
         'id',
         'schema',
