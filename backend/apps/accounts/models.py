@@ -16,6 +16,12 @@ class User(AbstractUser):
     location = models.CharField(max_length=255, blank=True)
     cycling_discipline = models.CharField(max_length=100, blank=True)
     email_verified = models.BooleanField(default=False)
+    allowed_conferences = models.ManyToManyField(
+        'schools.Conference',
+        blank=True,
+        related_name='conference_admin_users',
+        help_text='Conferences this staff user can manage in Django Admin.',
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

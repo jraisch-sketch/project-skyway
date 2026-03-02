@@ -2,12 +2,17 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils import timezone
 from datetime import timedelta
+from hijack.contrib.admin import HijackUserAdminMixin
 
 from .models import AccessCode, AccessCodeLog, User
 
 
+def is_conference_admin_user(user):
+    return bool(user.is_active and user.is_staff and not user.is_superuser)
+
+
 @admin.register(User)
-class UserAdmin(DjangoUserAdmin):
+class UserAdmin(HijackUserAdminMixin, DjangoUserAdmin):
     model = User
     list_display = ('email', 'username', 'role', 'email_verified', 'is_staff', 'is_active')
     list_filter = ('role', 'email_verified', 'is_staff', 'is_active')
@@ -17,6 +22,10 @@ class UserAdmin(DjangoUserAdmin):
             'Student Profile',
             {'fields': ('role', 'grad_year', 'location', 'cycling_discipline', 'email_verified')},
         ),
+        (
+            'Conference Administrator',
+            {'fields': ('allowed_conferences',)},
+        ),
     )
     add_fieldsets = DjangoUserAdmin.add_fieldsets + (
         (
@@ -24,6 +33,22 @@ class UserAdmin(DjangoUserAdmin):
             {'fields': ('email', 'role', 'grad_year', 'location', 'cycling_discipline', 'email_verified')},
         ),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = list(super().get_fieldsets(request, obj))
+        if not request.user.is_superuser:
+            fieldsets = [fs for fs in fieldsets if fs[0] != 'Conference Administrator']
+        return fieldsets
+
+    def has_module_permission(self, request):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_view_permission(request, obj=obj)
 
 
 @admin.register(AccessCode)
@@ -42,6 +67,16 @@ class AccessCodeAdmin(admin.ModelAdmin):
     search_fields = ('code', 'invitee_name', 'invitee_email', 'bound_device_id')
     readonly_fields = ('created_at', 'updated_at', 'last_seen_at')
     actions = ('extend_one_week', 'disable_codes', 'enable_codes', 'clear_device_binding')
+
+    def has_module_permission(self, request):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_view_permission(request, obj=obj)
 
     def extend_one_week(self, request, queryset):
         queryset.update(expires_at=timezone.now() + timedelta(days=7))
@@ -79,5 +114,15 @@ class AccessCodeLogAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def has_module_permission(self, request):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_module_permission(request)
+
     def has_change_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        if is_conference_admin_user(request.user):
+            return False
+        return super().has_view_permission(request, obj=obj)
