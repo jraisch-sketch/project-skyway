@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'hijack',
+    'hijack.contrib.admin',
     'apps.accounts',
     'apps.cms',
     'apps.schools',
