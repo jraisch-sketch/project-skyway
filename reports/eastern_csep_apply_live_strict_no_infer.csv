@@ -1,0 +1,65 @@
+status,school_id,school_name,details
+skipped,136,Bard College,
+skipped,137,Bates College,
+updated,258,Boston College,"cycling_program_status,cyclocross,road"
+updated,259,Boston University,"cycling_program_status,road"
+updated,140,Bowdoin College,"cycling_program_status,road"
+skipped,141,Brandeis University,
+updated,142,Brown University,"cycling_program_status,cyclocross,mtb,mtb_xc,road,track"
+updated,143,Bucknell University,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,144,Carnegie Mellon University,
+updated,145,Castleton University,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,146,Clarkson University,
+updated,147,Colby College,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+updated,262,Columbia University-NYC,"cycling_program_status,cyclocross,mtb,mtb_xc,road,track"
+updated,149,Cornell University,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+updated,150,Dartmouth College,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,151,Drexel University,
+skipped,152,Hamilton College,
+updated,153,Harvard University,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,154,IIndiana University of Pennsylvania,
+skipped,155,Juniata College,
+updated,156,Lafayette College,"cycling_program_status,mtb,mtb_xc,road"
+skipped,157,Lehigh University,
+updated,158,Marlboro College (Closed in 2020),cycling_program_status
+skipped,159,Marywood University,
+skipped,160,Massachusetts College of Liberal Arts,
+updated,161,Massachusetts Institute of Technology,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,162,Middlebury College,
+skipped,163,New York University,
+updated,164,Northeastern University,"cycling_program_status,mtb,mtb_downhill,mtb_slalom,mtb_st,mtb_xc"
+skipped,165,Penn State Behrend,
+skipped,167,Penn State Main Campus,
+skipped,166,Penn State-Lehigh Valley,
+skipped,168,Plymouth State University,
+updated,169,Princeton University,"cycling_program_status,road"
+updated,170,Rensselaer Polytechnic Institute,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,171,Rhode Island School of Design,
+skipped,172,Rochester Institute of Technology PROD,
+skipped,173,Rutgers University-New Brunswick,
+skipped,174,Saint Lawrence University,
+skipped,175,Saint Michaels College,
+skipped,176,Shippensburg University of Pennsylvania,
+skipped,177,Smith College,
+skipped,178,Suny Maritime College,
+skipped,179,Swarthmore College,
+skipped,180,Syracuse University,
+updated,181,Temple University,"cycling_program_status,mtb,mtb_xc,road,track"
+updated,182,Tufts University,"cycling_program_status,mtb,mtb_xc,road"
+skipped,183,Union College-NY,
+skipped,184,United States Coast Guard Academy,
+updated,185,University of Connecticut,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,186,University of Delaware,
+skipped,187,University of Maine-Orono,
+skipped,188,University of Massachusetts Amherst,
+skipped,189,University of New Hampshire,
+skipped,190,University of Pennsylvania,
+updated,191,University of Pittsburgh,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,192,University of Rhode Island,
+skipped,193,University of Rochester,
+updated,194,University of Vermont,"cycling_program_status,cyclocross,mtb,mtb_xc,road"
+skipped,195,US Military Academy,
+skipped,196,Vermont Technical College,
+updated,197,Williams College,"cycling_program_status,cyclocross,road"
+skipped,198,Worcester Polytechnic Institute,
+updated,199,Yale University,"cycling_program_status,cyclocross,mtb,mtb_xc,road"

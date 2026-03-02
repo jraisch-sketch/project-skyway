@@ -76,6 +76,7 @@ SSL + API parity rule:
 - [ ] Production backend must use production DB only
 - [ ] Separate admin accounts/passwords for staging and production
 - [ ] Never test destructive scripts against production first
+- [ ] For controlled prod->staging/local copies, use snapshot commands documented in `README.md` and `docs/db-snapshot-sync-plan.md`
 
 ## 5) Staging Deployment Checklist
 

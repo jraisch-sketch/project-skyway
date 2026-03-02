@@ -1,0 +1,3 @@
+active=23
+inactive=1
+unknown=40

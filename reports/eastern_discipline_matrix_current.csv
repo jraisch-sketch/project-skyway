@@ -1,0 +1,65 @@
+name,road,mtb_xc,mtb_st,mtb_enduro,mtb_downhill,mtb_slalom,cyclocross
+Bard College,False,False,False,False,False,False,False
+Bates College,False,False,False,False,False,False,False
+Boston College,True,False,False,False,False,False,True
+Boston University,False,False,False,False,False,False,False
+Bowdoin College,False,False,False,False,False,False,False
+Brandeis University,False,False,False,False,False,False,False
+Brown University,False,False,False,False,False,False,False
+Bucknell University,False,False,False,False,False,False,False
+Carnegie Mellon University,False,False,False,False,False,False,False
+Castleton University,False,False,False,False,False,False,False
+Clarkson University,False,True,True,True,True,True,False
+Colby College,False,False,False,False,False,False,False
+Columbia University-NYC,True,False,False,False,False,False,True
+Cornell University,False,False,False,False,False,False,False
+Dartmouth College,False,False,False,False,False,False,False
+Drexel University,False,False,False,False,False,False,False
+Hamilton College,False,False,False,False,False,False,False
+Harvard University,False,False,False,False,False,False,False
+IIndiana University of Pennsylvania,False,False,False,False,False,False,False
+Juniata College,False,False,False,False,False,False,False
+Lafayette College,True,False,False,False,False,False,False
+Lehigh University,False,False,False,False,False,False,False
+Marlboro College (Closed in 2020),False,False,False,False,False,False,False
+Marywood University,False,False,False,False,False,False,False
+Massachusetts College of Liberal Arts,True,False,False,False,False,False,False
+Massachusetts Institute of Technology,True,False,False,False,False,False,False
+Middlebury College,False,False,False,False,False,False,False
+New York University,False,False,False,False,False,False,False
+Northeastern University,False,False,False,False,False,False,False
+Penn State Behrend,False,False,False,False,False,False,False
+Penn State Main Campus,False,False,False,False,False,False,False
+Penn State-Lehigh Valley,False,False,False,False,False,False,False
+Plymouth State University,False,False,False,False,False,False,False
+Princeton University,False,False,False,False,False,False,False
+Rensselaer Polytechnic Institute,False,False,False,False,False,False,False
+Rhode Island School of Design,False,False,False,False,False,False,False
+Rochester Institute of Technology PROD,False,True,True,True,True,True,True
+Rutgers University-New Brunswick,False,False,False,False,False,False,False
+Saint Lawrence University,False,False,False,False,False,False,False
+Saint Michaels College,False,False,False,False,False,False,False
+Shippensburg University of Pennsylvania,False,False,False,False,False,False,False
+Smith College,False,False,False,False,False,False,False
+Suny Maritime College,False,False,False,False,False,False,False
+Swarthmore College,False,False,False,False,False,False,False
+Syracuse University,False,False,False,False,False,False,False
+Temple University,False,False,False,False,False,False,False
+Tufts University,False,False,False,False,False,False,False
+Union College-NY,False,False,False,False,False,False,False
+United States Coast Guard Academy,False,False,False,False,False,False,False
+University of Connecticut,False,False,False,False,False,False,False
+University of Delaware,False,False,False,False,False,False,False
+University of Maine-Orono,False,False,False,False,False,False,False
+University of Massachusetts Amherst,True,False,False,False,False,False,False
+University of New Hampshire,False,False,False,False,False,False,False
+University of Pennsylvania,False,False,False,False,False,False,False
+University of Pittsburgh,True,False,False,False,False,False,False
+University of Rhode Island,False,False,False,False,False,False,False
+University of Rochester,False,False,False,False,False,False,False
+University of Vermont,False,False,False,False,False,False,False
+US Military Academy,False,False,False,False,False,False,False
+Vermont Technical College,False,False,False,False,False,False,False
+Williams College,False,False,False,False,False,False,False
+Worcester Polytechnic Institute,False,False,False,False,False,False,False
+Yale University,False,False,False,False,False,False,False

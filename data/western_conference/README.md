@@ -9,6 +9,8 @@ This folder is the structured working area for Western Conference school data ta
 - `western_scorecard_enrichment_YYYYMMDD-HHMMSS.csv`: timestamped enrichment snapshots.
 - `western_geocode_results_latest.csv`: latest latitude/longitude enrichment output from Nominatim.
 - `western_geocode_needs_review_latest.csv`: subset of geocode rows below confidence threshold.
+- `western_csep_research_queue.csv`: current working queue for cycling-discipline research/evidence.
+- `western_csep_research_batch1_conference_seed.csv`: initial conference-level discipline seed (provisional).
 
 ## Workflow
 1. Keep raw inputs in `western_conference_contacts.csv`.
@@ -18,6 +20,9 @@ This folder is the structured working area for Western Conference school data ta
    `python3 scripts/western_scorecard_enrich.py --api-key "$COLLEGE_SCORECARD_API_KEY"`
 5. For geocoding from the scorecard-enriched dataset, run:
    `python3 scripts/western_geocode_from_scorecard.py --threshold 0.75 --sleep 0.3`
+6. For discipline seeding/research apply (local):
+   `python manage.py apply_csep_research --input ../data/western_conference/western_csep_research_queue.csv --no-infer --dry-run --report ../reports/western_csep_apply_dryrun.csv`
+   Then run without `--dry-run` for local commit.
 
 ## Notes
 - Keep `school_name` as the canonical matching field to existing `School` rows.
@@ -30,3 +35,5 @@ This folder is the structured working area for Western Conference school data ta
   `latitude`, `longitude`, `geocode_raw`, `geocode_confidence`, `geocode_status`,
   `geocode_needs_review`, `geocode_query`, `geocode_source`, `geocode_source_url`,
   `address_complete`.
+- Current discipline seed is conference-level evidence and marked `needs-review`.
+  Treat as provisional until team-level sources are added per school.
