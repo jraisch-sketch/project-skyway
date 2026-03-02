@@ -1,4 +1,4 @@
-.PHONY: setup up down status logs verify-staging-frontend deploy-staging-frontend snapshot-to-staging snapshot-to-local snapshot-only list-snapshots
+.PHONY: setup up down status logs local local-reset local-check verify-staging-frontend deploy-staging-frontend snapshot-to-staging snapshot-to-local snapshot-only list-snapshots
 
 setup:
 	./dev setup
@@ -14,6 +14,15 @@ status:
 
 logs:
 	./dev logs
+
+local:
+	./dev refresh
+
+local-reset:
+	./dev refresh
+
+local-check:
+	./dev doctor
 
 verify-staging-frontend:
 	./scripts/verify_staging_frontend.sh
