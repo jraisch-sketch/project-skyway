@@ -12,8 +12,6 @@ import type { FilterOptions, School, SchoolDetail } from '@/lib/types';
 const SchoolMap = dynamic(() => import('@/components/SchoolMap'), { ssr: false });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
-const disciplineChoices = Object.keys(DISCIPLINE_LABELS);
-
 type ActiveTab = 'list' | 'map';
 
 function formatProfileValue(value: string): string {
@@ -47,6 +45,10 @@ export default function BrowseCyclingCollegesPage() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favoriteSchoolIds, setFavoriteSchoolIds] = useState<number[]>([]);
   const disciplineMenuRef = useRef<HTMLDivElement | null>(null);
+  const disciplineChoices = useMemo(
+    () => filters?.disciplines?.filter((key) => key in DISCIPLINE_LABELS) ?? Object.keys(DISCIPLINE_LABELS),
+    [filters],
+  );
 
   useEffect(() => {
     apiFetch<FilterOptions>('/filters/')
@@ -129,6 +131,10 @@ export default function BrowseCyclingCollegesPage() {
     document.addEventListener('mousedown', onClickOutside);
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
+
+  useEffect(() => {
+    setDisciplines((current) => current.filter((key) => disciplineChoices.includes(key)));
+  }, [disciplineChoices]);
 
   const detectLocation = () => {
     if (!navigator.geolocation) return;

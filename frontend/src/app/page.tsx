@@ -13,8 +13,6 @@ import type { CmsWidgetPlacement, ConferenceSummary, FilterOptions, School, Scho
 const SchoolMap = dynamic(() => import('@/components/SchoolMap'), { ssr: false });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
-const disciplineChoices = Object.keys(DISCIPLINE_LABELS);
-
 function formatProfileValue(value: string): string {
   if (!value) return 'N/A';
   return value
@@ -49,6 +47,10 @@ export default function HomePage() {
   const [conferenceRows, setConferenceRows] = useState<ConferenceSummary[]>([]);
   const [homeWidgets, setHomeWidgets] = useState<CmsWidgetPlacement[]>([]);
   const disciplineMenuRef = useRef<HTMLDivElement | null>(null);
+  const disciplineChoices = useMemo(
+    () => filters?.disciplines?.filter((key) => key in DISCIPLINE_LABELS) ?? Object.keys(DISCIPLINE_LABELS),
+    [filters],
+  );
 
   useEffect(() => {
     apiFetch<FilterOptions>('/filters/')
@@ -154,6 +156,10 @@ export default function HomePage() {
     document.addEventListener('mousedown', onClickOutside);
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
+
+  useEffect(() => {
+    setDisciplines((current) => current.filter((key) => disciplineChoices.includes(key)));
+  }, [disciplineChoices]);
 
   const detectLocation = () => {
     if (!navigator.geolocation) return;

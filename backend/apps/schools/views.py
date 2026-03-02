@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Conference, FavoriteSchool, School
+from .models import Conference, Discipline, FavoriteSchool, School
 from .permissions import FavoritesPermission
 from .serializers import (
     ConferenceSerializer,
@@ -14,13 +14,9 @@ from .serializers import (
 )
 
 
-DISCIPLINE_FIELD_MAP = {
+DISCIPLINE_FILTER_QS = {
     'road': 'road',
-    'mtb_xc': 'mtb_xc',
-    'mtb_st': 'mtb_st',
-    'mtb_enduro': 'mtb_enduro',
-    'mtb_downhill': 'mtb_downhill',
-    'mtb_slalom': 'mtb_slalom',
+    'mtb': Q(mtb=True) | Q(mtb_xc=True) | Q(mtb_st=True) | Q(mtb_enduro=True) | Q(mtb_downhill=True) | Q(mtb_slalom=True),
     'cyclocross': 'cyclocross',
     'track': 'track',
 }
@@ -70,9 +66,11 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
         if disciplines:
             requested = [d.strip().lower() for d in disciplines.split(',') if d.strip()]
             for discipline in requested:
-                field_name = DISCIPLINE_FIELD_MAP.get(discipline)
-                if field_name:
-                    qs = qs.filter(**{field_name: True})
+                filter_value = DISCIPLINE_FILTER_QS.get(discipline)
+                if isinstance(filter_value, str):
+                    qs = qs.filter(**{filter_value: True})
+                elif isinstance(filter_value, Q):
+                    qs = qs.filter(filter_value)
 
         lat = self.request.query_params.get('lat')
         lng = self.request.query_params.get('lng')
@@ -141,12 +139,20 @@ def filter_options(request):
         .distinct()
         .order_by('state')
     )
+    visible_discipline_keys = list(
+        Discipline.objects.filter(hidden=False)
+        .order_by('sort_order', 'label')
+        .values_list('key', flat=True)
+    )
+    if not visible_discipline_keys:
+        visible_discipline_keys = ['road', 'mtb', 'cyclocross', 'track']
+
     return Response(
         {
             'team_types': [choice[0] for choice in School.TeamType.choices],
             'conferences': list(conferences),
             'states': list(states),
-            'disciplines': list(DISCIPLINE_FIELD_MAP.keys()),
+            'disciplines': visible_discipline_keys,
             'sort_options': ['relevance', 'distance', 'alphabetical'],
         }
     )

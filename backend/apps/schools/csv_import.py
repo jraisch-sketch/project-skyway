@@ -54,6 +54,12 @@ def import_schools_from_csv(file_obj):
 
         latitude, longitude = parse_geocode(row.get('Geocode') or '')
         has_coords = latitude is not None and longitude is not None
+        mtb_xc = parse_bool(row.get('MTB XC', ''))
+        mtb_st = parse_bool(row.get('MTB ST', ''))
+        mtb_enduro = parse_bool(row.get('MTB Enduro', ''))
+        mtb_downhill = parse_bool(row.get('MTB Downhill', ''))
+        mtb_slalom = parse_bool(row.get('MTB Slalom', ''))
+        mtb = parse_bool(row.get('MTB', '')) or any((mtb_xc, mtb_st, mtb_enduro, mtb_downhill, mtb_slalom))
 
         School.objects.update_or_create(
             name=name,
@@ -84,11 +90,12 @@ def import_schools_from_csv(file_obj):
                 'geocode_needs_review': False,
                 'geocode_notes': 'Coordinates provided by CSV import.' if has_coords else '',
                 'road': parse_bool(row.get('Road', '')),
-                'mtb_xc': parse_bool(row.get('MTB XC', '')),
-                'mtb_st': parse_bool(row.get('MTB ST', '')),
-                'mtb_enduro': parse_bool(row.get('MTB Enduro', '')),
-                'mtb_downhill': parse_bool(row.get('MTB Downhill', '')),
-                'mtb_slalom': parse_bool(row.get('MTB Slalom', '')),
+                'mtb': mtb,
+                'mtb_xc': mtb_xc,
+                'mtb_st': mtb_st,
+                'mtb_enduro': mtb_enduro,
+                'mtb_downhill': mtb_downhill,
+                'mtb_slalom': mtb_slalom,
                 'track': parse_bool(row.get('Track', '')),
                 'head_coach': row.get('Head Coach', ''),
                 'instagram': row.get('Instagram', ''),
